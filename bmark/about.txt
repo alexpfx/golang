@@ -1,3 +1,5 @@
+- teclad de talho:
+
 todos:
 - preparar saida para o rofi/dmenu
 
