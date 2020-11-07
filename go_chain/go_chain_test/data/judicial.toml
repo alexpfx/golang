@@ -1,0 +1,11 @@
+method = "post"
+input = ["cpf", "nome"]
+json = '''
+    {
+        "nit":"121",
+        "cpf":"11",
+        "nome":"11"
+    }
+'''
+endpoint = 'http://'
+output = ["nb"]
