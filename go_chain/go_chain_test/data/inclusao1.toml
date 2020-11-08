@@ -1,0 +1,35 @@
+method = "post"
+input = ["cpf", "nomeTitular"]
+json = '''
+{
+  "codigoEspecieBeneficio": 31,
+  "nit": 26814199970,
+  "cpf": 81573226343,
+  "dataEntradaRequerimento": "2020-09-15T11:51:52.053Z",
+  "dut": "2020-09-01T11:51:52.053Z",
+  "cnpj": 191,
+  "idUnidadeOrganica": "11001020",
+  "dataAgendamento": "2020-10-15T11:51:52.053Z",
+  "prazoTarefa": "2020-10-15T11:51:52.053Z",
+  "codigoOrigem": 2,
+  "nomeTitular": "FULANO QTGADJS IRAXCET",
+  "endereco": "Endereco",
+  "cep": 88101090,
+  "municipioIBGE": 4205407,
+  "processo": "processo",
+  "forum": "forum",
+  "numeroForum": 1,
+  "resultadoSentenca": "resultado",
+  "vara": 1,
+  "cpfRepresentanteLegal": 0,
+  "tipoRepresentanteLegal": 0,
+  "cpfProcurador": 0,
+  "dataExpedicaoRL": "2020-09-15T11:51:52.053Z",
+  "dataMandato": "2020-09-15T11:51:52.053Z",
+  "dib": "2020-09-15T11:51:52.053Z",
+  "dip": "2020-09-15T11:51:52.053Z"
+}
+'''
+endpoint = '{{ baseUrl }}/sibews/rest/requerimento/incluir/bi/inicial'
+output = ["nb"]
+
