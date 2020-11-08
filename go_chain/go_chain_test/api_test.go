@@ -3,6 +3,7 @@ package go_chain_test
 import (
 	"fmt"
 	"github.com/alexpfx/golang/go_chain"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -11,10 +12,13 @@ const errFragment = "espera que erro fosse %v, porém obteve %v"
 
 func TestReplaceInput(t *testing.T) {
 	tests := []struct {
-		name  string
-		input map[string]string
+		name     string
+		input    map[string]string
+		contains string
 	}{
-		{"", map[string]string{"cpf": "1122"}},
+		{"replace cpf", map[string]string{"cpf": "1122"}, `"cpf":"1122"`},
+		{"replace nit", map[string]string{"nit": "1234", "nome": "alexandre"}, `"nit":"1234"`},
+		{"replace nome", map[string]string{"nit": "1234", "nome": "alexandre"}, `"nome":"alexandre"`},
 	}
 	filePath := fmt.Sprintf("data/%s", "inclusao1.toml")
 
@@ -27,10 +31,11 @@ func TestReplaceInput(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			input, err := go_chain.ReplaceInput(json, map[string]string{"cpf": "1122"})
+			input, err := go_chain.ReplaceInput(json, test.input)
 			checkErr(t, err)
 
-			t.Log(input)
+			assert.Contains(t, input, test.contains)
+
 
 		})
 	}
