@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-const fragment = "%s: esperava %v, porém obteve %v"
 const errFragment = "espera que erro fosse %v, porém obteve %v"
 
 func TestReplaceInput(t *testing.T) {
@@ -74,6 +73,12 @@ func TestParsing(t *testing.T) {
 			filePath := fmt.Sprintf("data/%s", test.file)
 
 			r, e := go_chain.Parse(filePath)
+
+			if r == nil {
+
+				t.Error("nao esperava valor nulo")
+				return
+			}
 
 			t.Log(test.name)
 

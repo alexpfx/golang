@@ -5,6 +5,19 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
+///CreateConfig cria um novo arquivo de configuração básico
+func CreateConfig (configDir, configFile string) *Chain{
+	return nil
+}
+
+///ExecuteRequest é responsável por realizar a chamada HTTP
+func ExecuteRequest(request Request){
+
+
+}
+
+
+
 func Parse(filePath string) (*Request, error) {
 	tree, err := toml.LoadFile(filePath)
 	if err != nil {
@@ -26,6 +39,7 @@ func Parse(filePath string) (*Request, error) {
 		Json:     out.Json,
 	}, nil
 }
+
 
 
 func ReplaceInput(json string, input map[string]string) (string, error) {
