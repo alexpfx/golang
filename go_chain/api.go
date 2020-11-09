@@ -3,7 +3,6 @@ package go_chain
 import (
 	js "encoding/json"
 	"github.com/pelletier/go-toml"
-	"strings"
 )
 
 func Parse(filePath string) (*Request, error) {
@@ -12,21 +11,19 @@ func Parse(filePath string) (*Request, error) {
 		return nil, err
 	}
 
-	var x Request
+	var out Request
 
-	err = tree.Unmarshal(&x)
+	err = tree.Unmarshal(&out)
 	if err != nil {
 		return nil, err
 	}
 
-	jsn := strings.Replace(x.Json, "\n", "", -1)
-
 	return &Request{
-		Method:   x.Method,
-		Output:   x.Output,
-		Input:    x.Input,
-		Endpoint: x.Endpoint,
-		Json:     jsn,
+		Method:   out.Method,
+		Output:   out.Output,
+		Input:    out.Input,
+		Endpoint: out.Endpoint,
+		Json:     out.Json,
 	}, nil
 }
 

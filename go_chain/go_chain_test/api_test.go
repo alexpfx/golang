@@ -36,7 +36,6 @@ func TestReplaceInput(t *testing.T) {
 
 			assert.Contains(t, input, test.contains)
 
-
 		})
 	}
 }
@@ -86,27 +85,13 @@ func TestParsing(t *testing.T) {
 
 			expected := test.expected
 
-			if r.Endpoint != expected.Endpoint {
-				t.Errorf(fragment, "endpoint", expected.Endpoint, r.Endpoint)
-			}
+			assert.Equal(t, r.Endpoint, expected.Endpoint)
+			assert.Equal(t, r.Method, expected.Method)
+			assert.Equal(t, r.Json, expected.Json)
 
-			if r.Method != expected.Method {
-				t.Errorf(fragment, "method", expected.Method, r.Method)
-			}
+			assert.ElementsMatch(t, r.Input, expected.Input)
 
-			for i, input := range r.Input {
-				expectedInput := expected.Input[i]
-				if input != expectedInput {
-					t.Errorf(fragment, "input", expectedInput, input)
-				}
-			}
-
-			for i, output := range r.Output {
-				expectedOutput := expected.Output[i]
-				if output != expectedOutput {
-					t.Errorf(fragment, "output", expectedOutput, output)
-				}
-			}
+			assert.ElementsMatch(t, r.Output, expected.Output)
 
 		})
 	}
