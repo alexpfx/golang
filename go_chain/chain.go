@@ -6,9 +6,10 @@ type Chain struct {
 }
 
 type Request struct {
-	Method   string   `toml:"method"`
-	Input    []string `toml:"input"`
-	Json     string   `toml:"json"`
-	Endpoint string   `toml:"endpoint"`
-	Output   []string `toml:"output"`
+	Method           string              `toml:"method"`
+	Input            []string            `toml:"input"`
+	Json             string              `toml:"json"`
+	EndpointReplaces map[string][]string `toml:"endpointReplaces"`
+	Endpoint         string              `toml:"endpoint"`
+	Output           []string            `toml:"output"`
 }

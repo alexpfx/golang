@@ -3,22 +3,28 @@ package go_chain
 import (
 	js "encoding/json"
 	"github.com/pelletier/go-toml"
+	"net/http"
+	"regexp"
+	"strings"
 )
 
+var tagPattern *regexp.Regexp = regexp.MustCompile("{{(.*?)}}")
+
 ///CreateConfig cria um novo arquivo de configuração básico
-func CreateConfig (configDir, configFile string) *Chain{
+func CreateConfig(configDir, configFile string) *Chain {
 	return nil
 }
 
 ///ExecuteRequest é responsável por realizar a chamada HTTP
-func ExecuteRequest(request Request){
+func ExecuteRequest(request Request) {
 
+	if strings.EqualFold(request.Method, "get") {
+		http.Get(request.Endpoint)
+	}
 
 }
 
-
-
-func Parse(filePath string) (*Request, error) {
+func parseTomlFile(filePath string) (*Request, error) {
 	tree, err := toml.LoadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -32,17 +38,25 @@ func Parse(filePath string) (*Request, error) {
 	}
 
 	return &Request{
-		Method:   out.Method,
-		Output:   out.Output,
-		Input:    out.Input,
-		Endpoint: out.Endpoint,
-		Json:     out.Json,
+		Method:           out.Method,
+		Output:           out.Output,
+		Input:            out.Input,
+		Endpoint:         out.Endpoint,
+		EndpointReplaces: out.EndpointReplaces,
+		Json:             out.Json,
 	}, nil
 }
 
+func replaceAll(sourceStr string, replaceStr []string) string {
+	strResult := sourceStr
+	for i, s := range tagPattern.FindAllString(sourceStr, len(replaceStr)) {
+		strResult = strings.Replace(strResult, s, replaceStr[i], -1)
+	}
 
+	return strResult
+}
 
-func ReplaceInput(json string, input map[string]string) (string, error) {
+func replaceInput(json string, input map[string]string) (string, error) {
 	var msgMap map[string]interface{}
 
 	err := js.Unmarshal([]byte(json), &msgMap)
