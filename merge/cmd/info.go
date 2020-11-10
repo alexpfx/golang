@@ -166,6 +166,18 @@ func shouldAddThisBranch(branchs []string, merge data.Merge) bool {
 }
 
 func outputJson(result []data.MRResult) {
+	for i, mrResult := range result {
+		createdAt := mrResult.MergeCommit.CreatedAt
+		if createdAt != "" {
+			t, _ := time.Parse(time.RFC3339, createdAt)
+			result[i].MergeCommit.CreatedAt = t.Format("2006-01-02T15:04:05Z")
+			//2006-11-12T11:45:26.000Z
+
+		}
+	}
+
+
+
 	bytes, err := json.MarshalIndent(result, "", "    ")
 
 	if err != nil {
@@ -285,5 +297,4 @@ func init() {
 	rootCmd.AddCommand(infoCmd)
 }
 
-// | jq -r '.[]|add|"\(.target_branch) \t\(.author.username)\t \(.web_url)\t \(.username)\t \(.created_at)"'
-
+//PRIVATE_TOKEN=xZgEwsr2nhz121qmiFLd ./merge info 8868 | jq -r '.[]|add|"\(.web_url)\t\(.author.username)\t\(.username)\t\(.created_at)"' | xsel -b
