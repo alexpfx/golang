@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"math/rand"
-	"merge/data"
 	"net/http"
 	"os"
 	"sort"
@@ -71,8 +70,8 @@ var (
 			mergeIds := extractMrs(args, isRange)
 
 			client := getClient()
-			okMrList := make([]data.MRResult, 0)
-			errorMrList := make([]data.MRErrResult, 0)
+			okMrList := make([]main.MRResult, 0)
+			errorMrList := make([]main.MRErrResult, 0)
 			if isDebug {
 				fmt.Println("private token: ", token)
 			}
@@ -104,7 +103,7 @@ var (
 
 					body, err := ioutil.ReadAll(r.Body)
 
-					var merges []data.Merge
+					var merges []main.Merge
 
 					err = json.Unmarshal(body, &merges)
 
@@ -155,7 +154,7 @@ func getTargetBranchsArgument(cmd *cobra.Command) []string {
 	return targetBranchs
 }
 
-func shouldAddThisBranch(branchs []string, merge data.Merge) bool {
+func shouldAddThisBranch(branchs []string, merge main.Merge) bool {
 	sliceLen := len(branchs)
 	if sliceLen == 0 {
 		return true
@@ -165,7 +164,7 @@ func shouldAddThisBranch(branchs []string, merge data.Merge) bool {
 	return sort.SearchStrings(branchs, merge.TargetBranch) != sliceLen
 }
 
-func outputJson(result []data.MRResult) {
+func outputJson(result []main.MRResult) {
 	for i, mrResult := range result {
 		createdAt := mrResult.MergeCommit.CreatedAt
 		if createdAt != "" {
@@ -191,7 +190,7 @@ func getPrivateKeyArgument(cmd *cobra.Command) string {
 	return token
 }
 
-func shouldAddThisAuthor(author string, merge data.Merge) bool {
+func shouldAddThisAuthor(author string, merge main.Merge) bool {
 	if author == "" {
 		return true
 	}
@@ -213,10 +212,10 @@ func getClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func getCommit(commitSha string) (data.MergeCommit, error) {
+func getCommit(commitSha string) (main.MergeCommit, error) {
 	url := fmt.Sprintf("%s/%s/%s", Base, CommitsPath, commitSha)
 	client := getClient()
-	var commit data.MergeCommit
+	var commit main.MergeCommit
 
 	req := createRequest(url, token)
 
@@ -235,7 +234,7 @@ func getCommit(commitSha string) (data.MergeCommit, error) {
 		return commit, e
 	}
 
-	return data.MergeCommit{
+	return main.MergeCommit{
 		Id:        commitSha,
 		CreatedAt: commit.CreatedAt,
 		Email:     commit.Email,
@@ -245,16 +244,16 @@ func getCommit(commitSha string) (data.MergeCommit, error) {
 	}, e
 }
 
-func appendError(results []data.MRErrResult, mergeId int, err string) []data.MRErrResult {
-	return append(results, data.MRErrResult{
+func appendError(results []main.MRErrResult, mergeId int, err string) []main.MRErrResult {
+	return append(results, main.MRErrResult{
 		MergeId: mergeId,
 		Err:     err,
 	})
 }
 
-func appendResult(results []data.MRResult, merge data.Merge, mergeCommit data.MergeCommit) []data.MRResult {
+func appendResult(results []main.MRResult, merge main.Merge, mergeCommit main.MergeCommit) []main.MRResult {
 
-	return append(results, data.MRResult{
+	return append(results, main.MRResult{
 		Merge:       merge,
 		MergeCommit: mergeCommit,
 	})

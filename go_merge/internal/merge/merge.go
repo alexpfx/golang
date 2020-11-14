@@ -1,4 +1,4 @@
-package data
+package merge
 
 type Merge struct {
 	Iid            int    `json:"iid"`
@@ -14,28 +14,30 @@ type Merge struct {
 	MergeCommitSha string `json:"merge_commit_sha"`
 }
 
+type CommandType int
 
+type Result struct {
+	CommandType CommandType
+	Results     interface{}
+}
 
 type User struct {
 	Username string `json:"username"`
 }
 
-type MergeCommit struct {
+type Commit struct {
 	Id        string `json:"id"`
 	Email     string `json:"author_email"`
 	CreatedAt string `json:"created_at"`
-	Username string `json:"username"`
-
+	Username  string `json:"username"`
 }
 
-
-
 type MRResult struct {
-	Merge       Merge       `json:"merge"`
-	MergeCommit MergeCommit `json:"merge_commit"`
+	Merge       Merge  `json:"merge"`
+	MergeCommit Commit `json:"merge_commit"`
 }
 
 type MRErrResult struct {
-	MergeId  int    `json:"merge_id"`
-	Err      string `json:"error"`
+	MergeId int    `json:"merge_id"`
+	Err     string `json:"error"`
 }
