@@ -6,16 +6,41 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-const Base = "https://www-scm.prevnet/api/v3/projects/754"
-const MergeRequestsPath = "merge_requests"
-const CommitsPath = "repository/commits"
+const mergeRequestsPath = "merge_requests"
+const mergeRequestQuery = "?iid="
+const commitsPath = "repository/commits"
 
-func Fetch(token, baseUrl string, mrs []int, filter map[string]string) (result []MRResult, err error) {
+var lastNumberRegex = regexp.MustCompile("[0-9]+")
+
+func createUrl(base, project, path, query string) string {
+	return strings.Join([]string{base, project, path, query}, "/")
+}
+
+func extractIds(urls []string) (result []int, err error) {
+
+	for _, url := range urls {
+		mrIdStr := lastNumberRegex.FindAllString(url, -1)
+		n := len(mrIdStr)
+		if n < 1 {
+			return nil, fmt.Errorf("url de merge inválida: %s", url)
+		}
+		mrIdInt, err := strconv.Atoi(mrIdStr[n-1])
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, mrIdInt)
+	}
+
+	return
+}
+
+func fetch(token, baseUrl, project string, mrs []int, filter map[string]string) (result []MRResult, err error) {
 	sort.Ints(mrs)
 
 	mrList := make([]MRResult, 0)
@@ -24,7 +49,7 @@ func Fetch(token, baseUrl string, mrs []int, filter map[string]string) (result [
 	client := createClient()
 
 	for _, mrId := range mrs {
-		url := strings.Join([]string{baseUrl, strconv.Itoa(mrId)}, "")
+		url := createUrl(baseUrl, project, mergeRequestsPath, mergeRequestQuery+strconv.Itoa(mrId))
 		req := createRequest(url, token)
 
 		resp, err := client.Do(req)
@@ -50,7 +75,7 @@ func Fetch(token, baseUrl string, mrs []int, filter map[string]string) (result [
 		}
 
 		for _, merge := range merges {
-			mrList, err = addOrDiscard(merge, mrList, filter, token)
+			mrList, err = addOrDiscard(baseUrl, project, merge, mrList, filter, token)
 			if err != nil {
 				errMrList = appendError(errMrList, mrId, err.Error())
 			}
@@ -60,11 +85,11 @@ func Fetch(token, baseUrl string, mrs []int, filter map[string]string) (result [
 
 }
 
-func addOrDiscard(merge Merge, mrList []MRResult, filter map[string]string, token string) ([]MRResult, error) {
+func addOrDiscard(baseUrl string, project string, merge Merge, mrList []MRResult, filter map[string]string, token string) ([]MRResult, error) {
 
 	if filter == nil {
-		commit, err := fetchCommit(merge.MergeCommitSha, token)
-		if err != nil{
+		commit, err := fetchCommit(baseUrl, project, merge.MergeCommitSha, token)
+		if err != nil {
 			return mrList, err
 		}
 		return appendResult(mrList, merge, commit), nil
@@ -73,17 +98,17 @@ func addOrDiscard(merge Merge, mrList []MRResult, filter map[string]string, toke
 	for k, v := range filter {
 
 		if strings.EqualFold(k, "author") {
-			if merge.Author.Username != v{
+			if merge.Author.Username != v {
 				continue
 			}
 		}
-		if strings.EqualFold(k, "target_branch"){
-			if !strings.EqualFold(v, merge.TargetBranch){
+		if strings.EqualFold(k, "target_branch") {
+			if !strings.EqualFold(v, merge.TargetBranch) {
 				continue
 			}
 		}
 		// filtros
-		commit, err := fetchCommit(merge.MergeCommitSha, token)
+		commit, err := fetchCommit(baseUrl, project, merge.MergeCommitSha, token)
 		if err != nil {
 			return mrList, err
 		}
@@ -122,8 +147,8 @@ func createClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func fetchCommit(commitSha, token string) (Commit, error) {
-	url := fmt.Sprintf("%s/%s/%s", Base, CommitsPath, commitSha)
+func fetchCommit(baseUrl, project, commitSha, token string) (Commit, error) {
+	url := createUrl(baseUrl, project, commitsPath, commitSha)
 	client := createClient()
 	var commit Commit
 
