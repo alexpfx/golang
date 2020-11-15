@@ -158,7 +158,7 @@ func Test_extractIds(t *testing.T) {
 			wantResult: []int{
 				8893, 7777, 1000, 1111,
 			},
-			wantErr:    false,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -170,6 +170,44 @@ func Test_extractIds(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
 				t.Errorf("extractIds() gotResult = %v, want %v", gotResult, tt.wantResult)
+			}
+		})
+	}
+}
+
+func TestGetFetchMode(t *testing.T) {
+	type args struct {
+		args []string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantRanges []string
+		wantErr    bool
+	}{
+		{
+			name: "t1 interval",
+			args: args{
+				args: []string{"pname",
+					"3333:4444",
+				},
+			},
+			wantRanges: []string{
+
+			},
+			wantErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotRanges, err := GetFetchMode(tt.args.args)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetFetchMode() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if gotRanges != nil && !reflect.DeepEqual(gotRanges, tt.wantRanges) {
+				t.Errorf("GetFetchMode() gotRanges = %v, want %v", gotRanges, tt.wantRanges)
 			}
 		})
 	}

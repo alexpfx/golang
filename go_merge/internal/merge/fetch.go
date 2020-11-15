@@ -16,10 +16,76 @@ const mergeRequestsPath = "merge_requests"
 const mergeRequestQuery = "?iid="
 const commitsPath = "repository/commits"
 
+// args:
+// cmd <url> <url>
+// cmd <mergeId> <mergeId>
+// cmd mergeId:mergeId
 var lastNumberRegex = regexp.MustCompile("[0-9]+")
+var colonInMid = regexp.MustCompile(`[0-9]+\:[0-9]+`)
 
 func createUrl(base, project, path, query string) string {
 	return strings.Join([]string{base, project, path, query}, "/")
+}
+
+func GetFetchMode(args []string) (ranges []int, err error) {
+	for i, arg := range args {
+		if i == 0 {
+			continue
+		}
+
+		if !isRange(arg) {
+			valid, id := validateSingleMrId(arg)
+			if !valid {
+				continue
+			}
+			ranges = append(ranges, id)
+			continue
+		}
+
+		valid, first, last := validateRange(arg)
+		if !valid {
+			continue
+		}
+
+		ranges = append(ranges, buildRange(first, last)...)
+	}
+	return nil, nil
+}
+
+func validateSingleMrId(arg string) (bool, int) {
+	return false, -1
+}
+
+func buildRange(first int, last int) []int {
+	return []int{}
+}
+
+func validateRange(arg string) (valid bool, first, last int) {
+	valid = false
+
+	splitted := strings.Split(arg, ":")
+	mi := splitted[0]
+	mf := splitted[2]
+
+	first, err := strconv.Atoi(mi)
+	if err != nil {
+		return
+	}
+
+	last, err = strconv.Atoi(mf)
+	if err != nil {
+		return
+	}
+
+	if last <= first {
+		return
+	}
+	valid = true
+	return
+}
+
+func isRange(arg string) bool {
+	return colonInMid.MatchString(arg)
 }
 
 func extractIds(urls []string) (result []int, err error) {
