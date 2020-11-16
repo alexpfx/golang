@@ -163,51 +163,88 @@ func Test_extractIds(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, err := extractIds(tt.args.urls)
+			gotResult, err := extractFromUrl(tt.args.urls)
+
 			if (err != nil) != tt.wantErr {
-				t.Errorf("extractIds() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("extractFromUrl() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
-				t.Errorf("extractIds() gotResult = %v, want %v", gotResult, tt.wantResult)
+				t.Errorf("extractFromUrl() gotResult = %v, want %v", gotResult, tt.wantResult)
 			}
 		})
 	}
 }
 
-func TestGetFetchMode(t *testing.T) {
+func TestBuildFetchRanges(t *testing.T) {
 	type args struct {
 		args []string
 	}
 	tests := []struct {
 		name       string
 		args       args
-		wantRanges []string
+		wantRanges []int
 		wantErr    bool
 	}{
 		{
-			name: "t1 interval",
+			name: "t1 - 1 range valido e 2 mrIds ",
 			args: args{
-				args: []string{"pname",
-					"3333:4444",
+				args: []string{
+					"prog",
+					"7001:7003",
+					"1111",
+					"4442",
 				},
 			},
-			wantRanges: []string{
-
+			wantRanges: []int{
+				7001, 7002, 7003, 1111, 4442,
 			},
-			wantErr:    false,
+			wantErr: false,
+		},
+		{
+			name: "t2 - 1 range invalido 1 valido ",
+			args: args{
+				args: []string{
+					"prog",
+					"7003:7003",
+					"1111",
+				},
+			},
+			wantRanges: []int{
+				1111,
+			},
+			wantErr: false,
+		},
+		{
+			name: "t3 - varios ids e ranges, validos e invalidos",
+			args: args{
+				args: []string{
+					"7001:7002", //valido
+					"7004:7003", //invalido
+					"2004:2005", // valido
+					"1111", // valido
+					"xxx111", // invalido
+					"3444:xpto", // invalido
+					"2222 2222", //invalido
+					"2222: 222", //invalido
+					"22:23", //valido
+				},
+			},
+			wantRanges: []int{
+				7001, 7002, 2004, 2005, 1111, 22, 23,
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotRanges, err := GetFetchMode(tt.args.args)
+			gotRanges, err := ParseIds(tt.args.args)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("GetFetchMode() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ParseIds() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			if gotRanges != nil && !reflect.DeepEqual(gotRanges, tt.wantRanges) {
-				t.Errorf("GetFetchMode() gotRanges = %v, want %v", gotRanges, tt.wantRanges)
+			if !reflect.DeepEqual(gotRanges, tt.wantRanges) {
+				t.Errorf("ParseIds() gotRanges = %v, want %v", gotRanges, tt.wantRanges)
 			}
 		})
 	}

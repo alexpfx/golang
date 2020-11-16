@@ -16,23 +16,30 @@ const mergeRequestsPath = "merge_requests"
 const mergeRequestQuery = "?iid="
 const commitsPath = "repository/commits"
 
+func extractFromUrl(url string) (result int, valid bool) {
+	var split = strings.Split(url, "/")
+	a := split[len(split)-1]
+	n, err := strconv.Atoi(a)
+	if err != nil {
+		return -1, false
+	}
+	return n, true
+}
+
 // args:
 // cmd <url> <url>
 // cmd <mergeId> <mergeId>
 // cmd mergeId:mergeId
 var lastNumberRegex = regexp.MustCompile("[0-9]+")
+
 var colonInMid = regexp.MustCompile(`[0-9]+\:[0-9]+`)
 
 func createUrl(base, project, path, query string) string {
 	return strings.Join([]string{base, project, path, query}, "/")
 }
 
-func GetFetchMode(args []string) (ranges []int, err error) {
-	for i, arg := range args {
-		if i == 0 {
-			continue
-		}
-
+func ParseIds(args []string) (ranges []int, err error) {
+	for _, arg := range args {
 		if !isRange(arg) {
 			valid, id := validateSingleMrId(arg)
 			if !valid {
@@ -43,21 +50,27 @@ func GetFetchMode(args []string) (ranges []int, err error) {
 		}
 
 		valid, first, last := validateRange(arg)
-		if !valid {
-			continue
+		if valid {
+			ranges = append(ranges, buildRange(first, last)...)
 		}
-
-		ranges = append(ranges, buildRange(first, last)...)
 	}
-	return nil, nil
+	return ranges, nil
 }
 
 func validateSingleMrId(arg string) (bool, int) {
-	return false, -1
+	n, err := strconv.Atoi(arg)
+	if err != nil {
+		return false, -1
+	}
+	return true, n
 }
 
 func buildRange(first int, last int) []int {
-	return []int{}
+	var r []int
+	for i := first; i <= last; i++ {
+		r = append(r, i)
+	}
+	return r
 }
 
 func validateRange(arg string) (valid bool, first, last int) {
@@ -65,7 +78,7 @@ func validateRange(arg string) (valid bool, first, last int) {
 
 	splitted := strings.Split(arg, ":")
 	mi := splitted[0]
-	mf := splitted[2]
+	mf := splitted[1]
 
 	first, err := strconv.Atoi(mi)
 	if err != nil {
@@ -88,25 +101,7 @@ func isRange(arg string) bool {
 	return colonInMid.MatchString(arg)
 }
 
-func extractIds(urls []string) (result []int, err error) {
-
-	for _, url := range urls {
-		mrIdStr := lastNumberRegex.FindAllString(url, -1)
-		n := len(mrIdStr)
-		if n < 1 {
-			return nil, fmt.Errorf("url de merge inválida: %s", url)
-		}
-		mrIdInt, err := strconv.Atoi(mrIdStr[n-1])
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, mrIdInt)
-	}
-
-	return
-}
-
-func fetch(token, baseUrl, project string, mrs []int, filter map[string]string) (result []MRResult, err error) {
+func fetch(token, baseUrl, project string, mrs []int, filter map[string]string) ([]MRResult, error) {
 	sort.Ints(mrs)
 
 	mrList := make([]MRResult, 0)
