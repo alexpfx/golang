@@ -12,13 +12,7 @@ type Merge struct {
 	WebUrl         string `json:"web_url"`
 	Author         User   `json:"author"`
 	MergeCommitSha string `json:"merge_commit_sha"`
-}
-
-type CommandType int
-
-type Result struct {
-	CommandType CommandType
-	Results     interface{}
+	Commit         Commit `json:"commit"`
 }
 
 type User struct {
@@ -34,10 +28,10 @@ type Commit struct {
 
 type MRResult struct {
 	Merge       Merge  `json:"merge"`
-	MergeCommit Commit `json:"merge_commit"`
 }
 
 type MRErrResult struct {
 	MergeId int    `json:"merge_id"`
 	Err     string `json:"error"`
 }
+

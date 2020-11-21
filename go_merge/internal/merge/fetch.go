@@ -5,64 +5,87 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const mergeRequestsPath = "merge_requests"
 const mergeRequestQuery = "?iid="
 const commitsPath = "repository/commits"
 
-func extractFromUrl(url string) (result int, valid bool) {
-	var split = strings.Split(url, "/")
-	a := split[len(split)-1]
-	n, err := strconv.Atoi(a)
-	if err != nil {
-		return -1, false
-	}
-	return n, true
-}
+var colonInMid = regexp.MustCompile(`[0-9]+:[0-9]+`)
 
 // args:
 // cmd <url> <url>
 // cmd <mergeId> <mergeId>
 // cmd mergeId:mergeId
-var lastNumberRegex = regexp.MustCompile("[0-9]+")
+//var lastNumberRegex = regexp.MustCompile("[0-9]+")
 
-var colonInMid = regexp.MustCompile(`[0-9]+\:[0-9]+`)
+var lastNumberRegex = regexp.MustCompile("[0-9]+")
 
 func createUrl(base, project, path, query string) string {
 	return strings.Join([]string{base, project, path, query}, "/")
 }
 
 func ParseIds(args []string) (ranges []int, err error) {
+
 	for _, arg := range args {
-		if !isRange(arg) {
-			valid, id := validateSingleMrId(arg)
-			if !valid {
-				continue
+
+		if isRange(arg) {
+			valid, first, last := validateRange(arg)
+			if valid {
+				ranges = append(ranges, buildRange(first, last)...)
 			}
-			ranges = append(ranges, id)
 			continue
 		}
+		id, valid := parseUrlOrSingleId(arg)
 
-		valid, first, last := validateRange(arg)
-		if valid {
-			ranges = append(ranges, buildRange(first, last)...)
+		if !valid {
+			continue
 		}
+		ranges = append(ranges, id)
+
 	}
+	if len(ranges) == 0 {
+		return nil, fmt.Errorf("passe um ou mais merge ids ou urls como parâmetro")
+	}
+
 	return ranges, nil
 }
 
-func validateSingleMrId(arg string) (bool, int) {
-	n, err := strconv.Atoi(arg)
+func parseUrlOrSingleId(arg string) (result int, valid bool) {
+	var parsedUrl, err = url.ParseRequestURI(arg)
 	if err != nil {
-		return false, -1
+		return parseSingleId(arg)
 	}
-	return true, n
+
+	var split = lastNumberRegex.FindAllString(parsedUrl.Path, -1)
+
+	size := len(split)
+	if size < 1 {
+		return -1, false
+	}
+
+	a := split[size-1]
+	n, err := strconv.Atoi(a)
+	if err != nil || n < 0 {
+		return -1, false
+	}
+	return n, true
+}
+
+func parseSingleId(arg string) (int, bool) {
+	n, err := strconv.Atoi(arg)
+	if err != nil || n < 0 {
+		return -1, false
+	}
+	return n, true
 }
 
 func buildRange(first int, last int) []int {
@@ -101,7 +124,15 @@ func isRange(arg string) bool {
 	return colonInMid.MatchString(arg)
 }
 
-func fetch(token, baseUrl, project string, mrs []int, filter map[string]string) ([]MRResult, error) {
+func ToJsonStr(results interface{}) string {
+	bytes, err := json.MarshalIndent(results, "", "   ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(bytes)
+}
+
+func Fetch(token, baseUrl, project string, mrs []int, filter map[string]string) ([]MRResult, []MRErrResult, error) {
 	sort.Ints(mrs)
 
 	mrList := make([]MRResult, 0)
@@ -110,8 +141,9 @@ func fetch(token, baseUrl, project string, mrs []int, filter map[string]string) 
 	client := createClient()
 
 	for _, mrId := range mrs {
-		url := createUrl(baseUrl, project, mergeRequestsPath, mergeRequestQuery+strconv.Itoa(mrId))
-		req := createRequest(url, token)
+		mrUrl := createUrl(baseUrl, project, mergeRequestsPath, mergeRequestQuery+strconv.Itoa(mrId))
+
+		req := createRequest(mrUrl, token)
 
 		resp, err := client.Do(req)
 
@@ -142,13 +174,14 @@ func fetch(token, baseUrl, project string, mrs []int, filter map[string]string) 
 			}
 		}
 	}
-	return mrList, nil
+	return mrList, errMrList, nil
 
 }
 
 func addOrDiscard(baseUrl string, project string, merge Merge, mrList []MRResult, filter map[string]string, token string) ([]MRResult, error) {
 
-	if filter == nil {
+
+	if filter == nil || len(filter) < 1{
 		commit, err := fetchCommit(baseUrl, project, merge.MergeCommitSha, token)
 		if err != nil {
 			return mrList, err
@@ -186,10 +219,9 @@ func createRequest(url string, token string) *http.Request {
 	return req
 }
 func appendResult(results []MRResult, merge Merge, commit Commit) []MRResult {
-
+	merge.Commit = commit
 	return append(results, MRResult{
 		Merge:       merge,
-		MergeCommit: commit,
 	})
 }
 
@@ -230,9 +262,11 @@ func fetchCommit(baseUrl, project, commitSha, token string) (Commit, error) {
 		return commit, e
 	}
 
+	createdAt, _ := time.Parse(time.RFC3339, commit.CreatedAt)
+
 	return Commit{
 		Id:        commitSha,
-		CreatedAt: commit.CreatedAt,
+		CreatedAt: createdAt.Format("2006-01-02T15:04:05Z"),
 		Email:     commit.Email,
 		Username: strings.FieldsFunc(commit.Email, func(r rune) bool {
 			return r == '@'

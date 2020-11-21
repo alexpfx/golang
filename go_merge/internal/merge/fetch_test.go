@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestFetch(t *testing.T) {
+func Test_Fetch(t *testing.T) {
 	type args struct {
 		token   string
 		baseUrl string
@@ -39,13 +39,14 @@ func TestFetch(t *testing.T) {
 
 						WebUrl:         "https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/8893",
 						MergeCommitSha: "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
+						Commit: Commit{
+							Id:        "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
+							Email:     "",
+							CreatedAt: "2020-11-14T16:31:47.000-03:00",
+							Username:  "isabel.tiburski",
+						},
 					},
-					Commit{
-						Id:        "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
-						Email:     "",
-						CreatedAt: "2020-11-14T16:31:47.000-03:00",
-						Username:  "isabel.tiburski",
-					},
+
 				},
 			},
 			wantErr: false,
@@ -69,13 +70,14 @@ func TestFetch(t *testing.T) {
 
 						WebUrl:         "https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/8888",
 						MergeCommitSha: "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
+						Commit: Commit{
+							Id:        "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
+							Email:     "",
+							CreatedAt: "2020-11-14T16:31:47.000-03:00",
+							Username:  "isabel.tiburski",
+						},
 					},
-					Commit{
-						Id:        "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
-						Email:     "",
-						CreatedAt: "2020-11-13T12:22:35.000-03:00",
-						Username:  "isabel.tiburski",
-					},
+
 				},
 				{
 					Merge{
@@ -87,12 +89,13 @@ func TestFetch(t *testing.T) {
 
 						WebUrl:         "https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/8890",
 						MergeCommitSha: "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
-					},
-					Commit{
-						Id:        "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
-						Email:     "",
-						CreatedAt: "2020-11-13T13:59:16.000-03:00",
-						Username:  "isabel.tiburski",
+						Commit: Commit{
+							Id:        "f4c84edd6a3b5736b06d3a31b4f1b7fd36a3f5a5",
+							Email:     "",
+							CreatedAt: "2020-11-14T16:31:47.000-03:00",
+							Username:  "isabel.tiburski",
+						},
+
 					},
 				},
 			},
@@ -101,82 +104,99 @@ func TestFetch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, err := fetch(tt.args.token, tt.args.baseUrl, "754", tt.args.mrs, tt.args.filter)
+			gotResult, _, err := Fetch(tt.args.token, tt.args.baseUrl, "754", tt.args.mrs, tt.args.filter)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("fetch() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Fetch() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			for i, r := range gotResult {
 				wR := tt.wantResult[i]
 				if r.Merge.Author != wR.Merge.Author {
-					t.Errorf("fetch() gotResult = %v, want %v\n", r.Merge.Author, wR.Merge.Author)
+					t.Errorf("Fetch() gotResult = %v, want %v\n", r.Merge.Author, wR.Merge.Author)
 				}
 
 				if r.Merge.TargetBranch != wR.Merge.TargetBranch {
-					t.Errorf("fetch() gotResult = %v, want %v\n", r.Merge.TargetBranch, wR.Merge.TargetBranch)
+					t.Errorf("Fetch() gotResult = %v, want %v\n", r.Merge.TargetBranch, wR.Merge.TargetBranch)
 				}
-				if r.MergeCommit.Username != wR.MergeCommit.Username {
-					t.Errorf("fetch() gotResult = %v, want %v\n", r.MergeCommit.Username, wR.MergeCommit.Username)
+				if r.Merge.Commit.Username != wR.Merge.Commit.Username {
+					t.Errorf("Fetch() gotResult = %v, want %v\n", r.Merge.Commit.Username, wR.Merge.Commit.Username)
 				}
 				if r.Merge.WebUrl != wR.Merge.WebUrl {
-					t.Errorf("fetch() gotResult = %v, want %v\n", r.Merge.WebUrl, wR.Merge.WebUrl)
+					t.Errorf("Fetch() gotResult = %v, want %v\n", r.Merge.WebUrl, wR.Merge.WebUrl)
 				}
-				if r.MergeCommit.CreatedAt != wR.MergeCommit.CreatedAt {
-					t.Errorf("fetch() gotResult = %v, want %v\n", r.MergeCommit.CreatedAt, wR.MergeCommit.CreatedAt)
+				if r.Merge.Commit.CreatedAt != wR.Merge.Commit.CreatedAt {
+					t.Errorf("Fetch() gotResult = %v, want %v\n", r.Merge.Commit.CreatedAt, wR.Merge.Commit.CreatedAt)
 
 				}
 				fmt.Println(r)
 
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
-				//t.Errorf("fetch() gotResult = %v, want %v", gotResult, tt.wantResult)
+				//t.Errorf("Fetch() gotResult = %v, want %v", gotResult, tt.wantResult)
 			}
 		})
 	}
 }
 
-func Test_extractIds(t *testing.T) {
+func Test_parseUrlOrSingleId(t *testing.T) {
 	type args struct {
-		urls []string
+		url string
 	}
 	tests := []struct {
 		name       string
 		args       args
-		wantResult []int
-		wantErr    bool
+		wantResult int
+		wantValid  bool
 	}{
+		{
+			name: "t0",
+			args: args{
+				url: "4445",
+			},
+			wantResult: 4445,
+			wantValid:  true,
+		},
 		{
 			name: "t1",
 			args: args{
-				urls: []string{
-					"https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/8893",
-					"https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/7777",
-					"3333https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/1000",
-					"3333https://www-scm.prevnet/sibe-pu/sibe-pu-repo11111/merge_requests1221/1000_1111",
-				},
+				url: "https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/8893",
 			},
-			wantResult: []int{
-				8893, 7777, 1000, 1111,
+			wantResult: 8893,
+			wantValid:  true,
+		},
+		{
+			name: "t2",
+			args: args{
+				url: "https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/8893/",
 			},
-			wantErr: false,
+			wantResult: 8893,
+			wantValid:  true,
+		},
+		{
+			name: "t3",
+			args: args{
+				url: "https://www-scm.prevnet/sibe-pu/sibe-pu-repo/merge_requests/-8893",
+			},
+			wantResult: 8893,
+			wantValid:  true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, err := extractFromUrl(tt.args.urls)
+			gotResult, valid := parseUrlOrSingleId(tt.args.url)
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("extractFromUrl() error = %v, wantErr %v", err, tt.wantErr)
+			if valid != tt.wantValid {
+				t.Errorf("parseUrlOrSingleId() valid = %v, want %v", valid, tt.wantValid)
 				return
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
-				t.Errorf("extractFromUrl() gotResult = %v, want %v", gotResult, tt.wantResult)
+				t.Errorf("parseUrlOrSingleId() gotResult = %v, want %v", gotResult, tt.wantResult)
 			}
 		})
 	}
 }
 
-func TestBuildFetchRanges(t *testing.T) {
+func Test_ParseIds(t *testing.T) {
 	type args struct {
 		args []string
 	}
@@ -187,7 +207,7 @@ func TestBuildFetchRanges(t *testing.T) {
 		wantErr    bool
 	}{
 		{
-			name: "t1 - 1 range valido e 2 mrIds ",
+			name: "t1 - 1 valor invalido, 1 range valido e 2 mrIds ",
 			args: args{
 				args: []string{
 					"prog",
@@ -222,12 +242,12 @@ func TestBuildFetchRanges(t *testing.T) {
 					"7001:7002", //valido
 					"7004:7003", //invalido
 					"2004:2005", // valido
-					"1111", // valido
-					"xxx111", // invalido
+					"1111",      // valido
+					"xxx111",    // invalido
 					"3444:xpto", // invalido
 					"2222 2222", //invalido
 					"2222: 222", //invalido
-					"22:23", //valido
+					"22:23",     //valido
 				},
 			},
 			wantRanges: []int{
