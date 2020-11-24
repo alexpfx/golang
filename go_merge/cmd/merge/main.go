@@ -15,14 +15,17 @@ const sibeProject = "754"
 func main() {
 	fetchCmd := flag.NewFlagSet("fetch", flag.ExitOnError)
 
+
+
 	var author string
-	fetchCmd.StringVar(&author, "a", "", "filtro por author. ex: -a nome.sobrenome")
+	fetchCmd.StringVar(&author, "a", "", "Filtro por autor")
 
 	var targetBranch string
-	fetchCmd.StringVar(&targetBranch, "b", "", "-b desenvolvimento")
+	fetchCmd.StringVar(&targetBranch, "b", "", "Filtro por target branch ex: desenvolvimento, homologacao")
 
 	var output string
-	fetchCmd.StringVar(&output, "o", "", `-o ".author.username "`)
+	fetchCmd.StringVar(&output, "o", "", "Mostra apenas os campos passados como parâmetro ex: <.author.username>. Para ver os campos possíveis use o argumento -fields ")
+
 
 	outputFlags := map[string]*bool{
 		"dev":  new(bool),
@@ -31,18 +34,27 @@ func main() {
 		"json": new(bool),
 	}
 
-	fetchCmd.BoolVar(outputFlags["dev"], "dev", false, "--dev")
-	fetchCmd.BoolVar(outputFlags["hom"], "hom", false, "--hom")
-	fetchCmd.BoolVar(outputFlags["auto"], "auto", false, "--auto")
-	fetchCmd.BoolVar(outputFlags["json"], "json", false, "--json")
+	fetchCmd.BoolVar(outputFlags["dev"], "dev", true, "Imprime saída de Dev: <Url> <Solicitante> <Aprovador> <Data>")
+	fetchCmd.BoolVar(outputFlags["hom"], "hom", false, "Imprime saída de Hom: <Url> <Solicitante> <Data>")
+	fetchCmd.BoolVar(outputFlags["auto"], "auto", false, "Imprime saída de acordo com o Target Branch desenvolvimento ou homologacao")
+	fetchCmd.BoolVar(outputFlags["json"], "json", false, "Imprime saída completa em formato Json")
 
 	args := os.Args
 	checkArgLen(args, 2)
+
+	var help bool
+	fetchCmd.BoolVar(&help, "h", false, "Mostra a ajuda")
+
 	switch args[1] {
 
 	case "fetch":
-		checkArgLen(args, 3)
+
 		err := fetchCmd.Parse(args[2:])
+
+		if help {
+			fetchCmd.PrintDefaults()
+			return
+		}
 
 		if err != nil {
 			log.Fatal(err.Error())
@@ -58,14 +70,22 @@ func main() {
 		checkIdsCount(ids)
 		token := checkToken()
 		filter := mapFilter(author, targetBranch)
-		mrInfo, _, err := merge.Fetch(token, baseUrl, sibeProject, ids, filter)
+		mrInfo, er, err := merge.Fetch(token, baseUrl, sibeProject, ids, filter)
 		if err != nil {
 			fmt.Println(err)
 		}
+		if len(er) > 0 {
+			fmt.Println("Invalidos: ")
+			for _, result := range er {
+				fmt.Printf("%d: %v", result.MergeId, result.Err)
+			}
+		}
+
 		formatter := chooseFormatter(output, outputFlags)
 
 		formatedOutput := merge.FormatOutput(mrInfo, formatter)
 		fmt.Println(formatedOutput)
+
 
 	default:
 		log.Fatalf("argumento(s) inválido(s): %v", args[1:])
@@ -89,7 +109,6 @@ func chooseFormatter(output string, flags map[string]*bool) merge.Formatter {
 	if *flags["json"] {
 		return merge.FormatJson
 	}
-
 
 	return merge.FormatDev
 }
@@ -128,3 +147,5 @@ func checkIdsCount(ids []int) {
 		log.Fatal(err)
 	}
 }
+
+//133

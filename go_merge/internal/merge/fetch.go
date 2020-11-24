@@ -148,7 +148,7 @@ func Fetch(token, baseUrl, project string, mrs []int, filter map[string]string) 
 		resp, err := client.Do(req)
 
 		if err != nil {
-			errOut := fmt.Errorf("não foi possível obter %d: ", mrId)
+			errOut := fmt.Errorf("%v", err.Error())
 			errMrList = appendError(errMrList, mrId, errOut.Error())
 			continue
 		}
@@ -180,8 +180,7 @@ func Fetch(token, baseUrl, project string, mrs []int, filter map[string]string) 
 
 func addOrDiscard(baseUrl string, project string, merge Merge, mrList []MRResult, filter map[string]string, token string) ([]MRResult, error) {
 
-
-	if filter == nil || len(filter) < 1{
+	if filter == nil || len(filter) < 1 {
 		commit, err := fetchCommit(baseUrl, project, merge.MergeCommitSha, token)
 		if err != nil {
 			return mrList, err
@@ -221,7 +220,7 @@ func createRequest(url string, token string) *http.Request {
 func appendResult(results []MRResult, merge Merge, commit Commit) []MRResult {
 	merge.Commit = commit
 	return append(results, MRResult{
-		Merge:       merge,
+		Merge: merge,
 	})
 }
 

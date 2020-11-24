@@ -13,6 +13,9 @@ type (
 	Formatter func(input interface{}) string
 )
 
+const devFormat = `.web_url .author.username .commit.username .commit.created_at`
+const homFormat = `.web_url .author.username .commit.created_at`
+
 func NewFormatter(fields string) Formatter {
 
 	f := func(input interface{}) string {
@@ -23,15 +26,13 @@ func NewFormatter(fields string) Formatter {
 }
 
 func FormatDev(input interface{}) string {
-	const devFormat = `.web_url .author.username .commit.username .commit.created_at`
-	return format(ToJsonStr(input), parseOutputArgs(devFormat, ".merge")...)
+
+	return format(ToJsonStr(input), parseOutputArgs(devFormat, "#.merge")...)
 }
 
-
 func FormatHom(input interface{}) string {
-	const homFormat = `.web_url .author.username .commit.created_at`
 
-	return format(ToJsonStr(input), parseOutputArgs(homFormat, ".merge")...)
+	return format(ToJsonStr(input), parseOutputArgs(homFormat, "#.merge")...)
 }
 
 func FormatJson(input interface{}) string {
@@ -39,9 +40,23 @@ func FormatJson(input interface{}) string {
 }
 
 func FormatAuto(input interface{}) string {
-	homFormat := `.web_url .author.username .commit.created_at`
+	r := input.([]MRResult)
 
-	return format(ToJsonStr(input), parseOutputArgs(homFormat, ".merge")...)
+	sb := strings.Builder{}
+	for _, result := range r {
+		var fmt string
+		if result.Merge.TargetBranch == "desenvolvimento" {
+			fmt = devFormat
+		} else {
+			fmt = homFormat
+		}
+
+		str := format(ToJsonStr(result), parseOutputArgs(fmt, "merge")...)
+
+		sb.WriteString(str)
+	}
+	return sb.String()
+
 }
 
 func format(input string, output ...string) string {
@@ -74,10 +89,9 @@ func FormatString(input string, formatter Formatter) string {
 	}
 	return formatter(input)
 }
-func FormatOutput(input interface{}, formatter Formatter) string{
+func FormatOutput(input interface{}, formatter Formatter) string {
 	return formatter(input)
 }
-
 
 func parseOutputArgs(arg, startPath string) []string {
 	if arg == "" {
