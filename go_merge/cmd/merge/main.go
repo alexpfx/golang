@@ -15,8 +15,6 @@ const sibeProject = "754"
 func main() {
 	fetchCmd := flag.NewFlagSet("fetch", flag.ExitOnError)
 
-
-
 	var author string
 	fetchCmd.StringVar(&author, "a", "", "Filtro por autor")
 
