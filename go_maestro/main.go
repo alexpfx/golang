@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/alexpfx/golang/go_maestro/internal/executor"
 	clip "github.com/atotto/clipboard"
@@ -46,11 +47,22 @@ func callCmd(cmd executor.Command, ua []string) {
 
 	command.Env = os.Environ()
 
-	output, err := command.CombinedOutput()
+	var stdOut, stdErr bytes.Buffer
+
+	command.Stdout = &stdOut
+	command.Stderr = &stdErr
+
+	err := command.Run()
+	outStr, errStr := string(stdOut.Bytes()), string(stdErr.Bytes())
 	if err != nil {
-		fmt.Println(string(output))
+		callRofiMessage(cmd.Name(), errStr)
+		log.Fatal(err.Error())
 	}
-	fmt.Println(string(output))
+
+	if outStr != "" {
+		callRofiMessage(cmd.Name(), outStr)
+	}
+
 }
 
 func appendUserArgs(chosenCmd executor.Command) []string {
@@ -66,6 +78,11 @@ func appendUserArgs(chosenCmd executor.Command) []string {
 		moreArgs = append(moreArgs, input)
 	}
 	return moreArgs
+}
+
+func callRofiMessage(title, msg string) {
+	rofi := exec.Command("rofi", "-e", fmt.Sprintf("%s:\n\n%s", title, msg))
+	_ = rofi.Run()
 }
 
 func callRofi(rofiMenu string) []byte {
