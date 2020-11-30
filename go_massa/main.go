@@ -9,10 +9,6 @@ import (
 	"os"
 )
 
-
-const path_ambiente = "/ambiente"
-const host_local = "http://localhost:7001"
-
 func main() {
 	args := os.Args
 	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
@@ -42,14 +38,13 @@ func main() {
 	case "get":
 		err := getCmd.Parse(args[2:])
 
-		getter := massa.NewMassaGetter()
-		massa, err := getter.GetRecent(cat, amb)
+		getter := massa.NewRetriever()
+		massa, err := getter.Older(cat, amb)
 		if err != nil {
 			listCmd.PrintDefaults()
 			os.Exit(0)
 		}
 		fmt.Println(ToJsonStr(massa))
-
 
 	default:
 		flag.PrintDefaults()

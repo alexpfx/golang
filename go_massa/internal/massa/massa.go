@@ -2,12 +2,9 @@ package massa
 
 const baseUrl = "http://v131d079.prevnet:8080/api"
 
-
-
-
 type Massa struct {
-	CpfMassa string `json:"cpfMassa"`
-	NitMassa string `json:"nitMassa"`
+	CpfMassa    string `json:"cpfMassa"`
+	NitMassa    string `json:"nitMassa"`
 	NomePfMassa string `json:"nomePfMassa"`
 }
 
@@ -19,5 +16,3 @@ type Catalogo struct {
 	NumeroEstoqueAtual int    `json:"numeroEstoqueAtual"`
 	Visivel            string `json:"visivel"`
 }
-
-

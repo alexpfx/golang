@@ -3,24 +3,21 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/alexpfx/golang/go_maestro/internal/executor"
+	"github.com/alexpfx/golang/go_maestro/internal/commands"
 	clip "github.com/atotto/clipboard"
 	"io"
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
 func main() {
 
-	cmds := []executor.Command{
-		executor.NewCmd("merge", []string{
-			"fetch",
-			"-auto",
-		}, map[string]string{
-			"mergeId": "",
-		}, true),
+	cmds := []commands.Cmd{
+		commands.MergeFetch(),
+		commands.MassaListaCatalogos(),
 	}
 
 	output := callRofi(buildRofiFromCmds(cmds))
@@ -32,7 +29,7 @@ func main() {
 	}
 
 	var ua []string
-	if len(chosenCmd.UserInput()) != 0 {
+	if len(chosenCmd.UserInput) != 0 {
 		ua = appendUserArgs(chosenCmd)
 		fmt.Println(ua)
 	}
@@ -40,10 +37,10 @@ func main() {
 
 }
 
-func callCmd(cmd executor.Command, ua []string) {
-	args := append(cmd.Args(), ua...)
+func callCmd(cmd *commands.Cmd, ua []string) {
+	args := append(cmd.Args, ua...)
 
-	command := exec.Command(cmd.Name(), args...)
+	command := exec.Command(cmd.Binary, args...)
 
 	command.Env = os.Environ()
 
@@ -55,22 +52,22 @@ func callCmd(cmd executor.Command, ua []string) {
 	err := command.Run()
 	outStr, errStr := string(stdOut.Bytes()), string(stdErr.Bytes())
 	if err != nil {
-		callRofiMessage(cmd.Name(), errStr)
+		callRofiMessage(cmd.Binary, errStr)
 		log.Fatal(err.Error())
 	}
 
 	if outStr != "" {
-		callRofiMessage(cmd.Name(), outStr)
-		if cmd.Clipboard() {
+		callRofiMessage(cmd.Binary, outStr)
+		if cmd.Clipboard {
 			clip.WriteAll(outStr)
 		}
 	}
 
 }
 
-func appendUserArgs(chosenCmd executor.Command) []string {
+func appendUserArgs(chosenCmd *commands.Cmd) []string {
 	var moreArgs []string
-	for _, argName := range chosenCmd.UserInput() {
+	for _, argName := range chosenCmd.UserInput {
 		if argName != "" {
 			moreArgs = append(moreArgs, argName)
 		}
@@ -88,8 +85,8 @@ func callRofiMessage(title, msg string) {
 	_ = rofi.Run()
 }
 
-func callRofi(rofiMenu string) []byte {
-	rofi := exec.Command("rofi", "-dmenu", "-format", "s", "-p", "tools")
+func callRofi(rofiMenu string) int {
+	rofi := exec.Command("rofi", "-i", "-dmenu", "-format", "i", "-p", "tools")
 
 	stdin, err := rofi.StdinPipe()
 	if err != nil {
@@ -104,27 +101,31 @@ func callRofi(rofiMenu string) []byte {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	return output
-
+	println("output", string(output))
+	atoi, _ := strconv.Atoi(strings.TrimRight(string(output), "\n"))
+	return atoi
 }
 
-func parseChosenCmd(output []byte, list []executor.Command) executor.Command {
-	strOutput := string(output)
-	for _, c := range list {
-		fmt.Println(c.Name())
-		fmt.Println(strOutput)
-		if strings.EqualFold(strings.TrimSuffix(strOutput, "\n"), c.Name()) {
-			return c
-		}
-	}
-	return nil
+func parseChosenCmd(index int, list []commands.Cmd) *commands.Cmd {
+	return &list[index]
 }
 
-func buildRofiFromCmds(cmdList []executor.Command) string {
+func buildRofiFromCmds(cmdList []commands.Cmd) string {
 	rofiMenu := strings.Builder{}
 
+	max := 0
+	for _, cmd := range cmdList {
+		nLen := len(cmd.Name)
+		if nLen > max {
+			max = nLen
+		}
+	}
+
 	for _, c := range cmdList {
-		rofiMenu.WriteString(c.Name())
+		rofiMenu.WriteString(fmt.Sprintf("%-*s", max, c.Name))
+		rofiMenu.WriteString("\t")
+		rofiMenu.WriteString(c.Desc)
+
 		rofiMenu.WriteString("\n")
 	}
 	return rofiMenu.String()

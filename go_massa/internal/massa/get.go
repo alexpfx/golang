@@ -11,18 +11,30 @@ import (
 	"strings"
 )
 
-const path_recupera_recente = "massa/recuperaMaisRecente"
+const pathRecuperaRecente = "massa/recuperaMaisRecente"
+const pathRecuperaAntiga = "massa/recuperaMaisRecente"
 
-type MassaGetter interface {
-	GetRecent(catalogo, ambiente int) (Massa, error)
+type Retriever interface {
+	MostRecent(catalogo, ambiente int) (Massa, error)
+	Older(catalogo, ambiente int) (Massa, error)
 }
 
-type massaGetter struct {
+type retriever struct {
 	client *http.Client
 }
 
-func NewMassaGetter() MassaGetter {
-	return massaGetter{
+func (c retriever) MostRecent(catalogo, ambiente int) (Massa, error) {
+	url := strings.Join([]string{baseUrl, pathRecuperaRecente, strconv.Itoa(catalogo), strconv.Itoa(ambiente)}, "/")
+	return c.retrieve(catalogo, ambiente, url)
+}
+
+func (c retriever) Older(catalogo, ambiente int) (Massa, error) {
+	url := strings.Join([]string{baseUrl, pathRecuperaAntiga, strconv.Itoa(catalogo), strconv.Itoa(ambiente)}, "/")
+	return c.retrieve(catalogo, ambiente, url)
+}
+
+func NewRetriever() Retriever {
+	return retriever{
 		client: createClient(),
 	}
 }
@@ -35,8 +47,7 @@ func createClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func (c massaGetter) GetRecent(catalogo, ambiente int) (Massa, error) {
-	url := strings.Join([]string{baseUrl, path_recupera_recente, strconv.Itoa(catalogo), strconv.Itoa(ambiente)}, "/")
+func (c retriever) retrieve(catalogo int, ambiente int, url string) (Massa, error) {
 	req, _ := http.NewRequest(http.MethodPut, url, nil)
 	response, err := c.client.Do(req)
 	if err != nil {
