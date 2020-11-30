@@ -1,5 +1,7 @@
 package output
 
+/*
+
 import (
 "github.com/tidwall/gjson"
 "regexp"
@@ -108,3 +110,4 @@ func parseOutputArgs(arg, startPath string) []string {
 	return allStr
 }
 
+*/
