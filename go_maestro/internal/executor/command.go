@@ -4,32 +4,41 @@ type Command interface {
 	Name() string
 	Args() []string
 	UserInput() map[string]string
+	Clipboard() bool
 }
 
-func NewCmd(name string, args []string, userInput map[string]string) Command {
-	return cmd{
+func NewCmd(name string, args []string, userInput map[string]string, clipboard bool) Command {
+	return Cmd{
 		name:      name,
 		args:      args,
 		userInput: userInput,
+		clipboard: clipboard,
 	}
-
 }
 
-type cmd struct {
+
+type Cmd struct {
 	name      string
 	args      []string
 	userInput map[string]string
+	clipboard bool
 }
 
-func (c cmd) UserInput() map[string]string {
+func (c Cmd) Clipboard() bool {
+	return c.clipboard
+}
+
+func (c Cmd) UserInput() map[string]string {
 	return c.userInput
 
 }
 
-func (c cmd) Name() string {
+func (c Cmd) Name() string {
 	return c.name
 }
 
-func (c cmd) Args() []string {
+func (c Cmd) Args() []string {
 	return c.args
 }
+
+

@@ -20,7 +20,7 @@ func main() {
 			"-auto",
 		}, map[string]string{
 			"mergeId": "",
-		}),
+		}, true),
 	}
 
 	output := callRofi(buildRofiFromCmds(cmds))
@@ -61,6 +61,9 @@ func callCmd(cmd executor.Command, ua []string) {
 
 	if outStr != "" {
 		callRofiMessage(cmd.Name(), outStr)
+		if cmd.Clipboard() {
+			clip.WriteAll(outStr)
+		}
 	}
 
 }
