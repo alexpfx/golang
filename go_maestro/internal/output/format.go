@@ -4,14 +4,9 @@ import (
 	"encoding/json"
 	"github.com/tidwall/gjson"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 )
-
-var startWithDot = regexp.MustCompile(`\.[^\s]+`)
-var startWithAt = regexp.MustCompile(`@[^\s]+`)
-
 
 func Filter(jsonInput string, filter []string) string {
 	if len(filter) == 0 {
@@ -22,17 +17,18 @@ func Filter(jsonInput string, filter []string) string {
 	m := aux.(map[string]interface{})
 
 	for i, s := range filter {
-		fields := startWithDot.FindAllString(s, -1)
-		aliases := startWithAt.FindAllString(s, -1)
-		if len(fields) > 1 || len(aliases) > 1 {
+		split := strings.Split(s, " ")
+		if len(split) < 1 || len(split) > 2 {
 			log.Fatal("filtro inválido: ", s)
 		}
-		field := strings.Replace(fields[0], ".", "", -1)
+
+		field := split[0]
+
 		if _, ok := m[field]; !ok {
 			continue
 		}
-		if len(aliases) > 0 {
-			alias := strings.Replace(aliases[0], "@", "", -1)
+		if len(split) > 1 {
+			alias := split[1]
 			filter[i] = alias
 			m[alias] = m[field]
 			delete(m, field)

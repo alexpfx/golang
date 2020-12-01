@@ -16,7 +16,7 @@ func Test_filter(t *testing.T) {
 			name: "t1",
 			args: args{
 				jsonInput: `{"cpfMassa": "87333851303","nitMassa": "26814418949","nomePfMassa":"FULANO IEVHSMRC HSCBUVJ"}`,
-				filter:    []string{".cpfMassa @cpf", ".nitMassa @nit", ".nomePfMassa @nomeTitular"},
+				filter:    []string{"cpfMassa cpf", "nitMassa nit", "nomePfMassa nomeTitular"},
 			},
 			want: `{"cpf":"87333851303","nit":"26814418949","nomeTitular":"FULANO IEVHSMRC HSCBUVJ"}`,
 		},
@@ -24,7 +24,7 @@ func Test_filter(t *testing.T) {
 			name: "t2",
 			args: args{
 				jsonInput: `{"cpfMassa": "87333851303","nitMassa": "26814418949","nomePfMassa":"FULANO IEVHSMRC HSCBUVJ"}`,
-				filter:    []string{".cpfMassa @cpf", ".nitMassa", ".nomePfMassa @nomeTitular"},
+				filter:    []string{"cpfMassa cpf", "nitMassa", "nomePfMassa nomeTitular"},
 			},
 			want: `{"cpf":"87333851303","nitMassa":"26814418949","nomeTitular":"FULANO IEVHSMRC HSCBUVJ"}`,
 		},
@@ -32,7 +32,7 @@ func Test_filter(t *testing.T) {
 			name: "t3",
 			args: args{
 				jsonInput: `{"cpfMassa": "87333851303","nitMassa": "26814418949","nomePfMassa":"FULANO IEVHSMRC HSCBUVJ"}`,
-				filter:    []string{".nitMassa", ".nomePfMassa @nomeTitular"},
+				filter:    []string{"nitMassa", "nomePfMassa nomeTitular"},
 			},
 			want: `{"nitMassa":"26814418949","nomeTitular":"FULANO IEVHSMRC HSCBUVJ"}`,
 		},
@@ -41,7 +41,7 @@ func Test_filter(t *testing.T) {
 			name: "t4",
 			args: args{
 				jsonInput: `{"cpfMassa": "87333851303","nitMassa": "26814418949","nomePfMassa":"FULANO IEVHSMRC HSCBUVJ"}`,
-				filter:    []string{".xnitMassa", ".xnomePfMassa @nomeTitular"},
+				filter:    []string{"xnitMassa", "xnomePfMassa nomeTitular"},
 			},
 			want: `{}`,
 		},
