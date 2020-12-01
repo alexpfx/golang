@@ -1,5 +1,6 @@
 package commands
 
+import "reflect"
 
 type Cmd struct {
 	Binary string
@@ -9,6 +10,8 @@ type Cmd struct {
 	UserInput map[string]string
 	Clipboard bool
 	FilterOutput []string
+	Filter reflect.Type
+	Next *Cmd
 }
 
 

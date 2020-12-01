@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/alexpfx/golang/go_maestro/internal/commands"
+	"github.com/alexpfx/golang/go_maestro/internal/output"
 	clip "github.com/atotto/clipboard"
 	"io"
 	"log"
@@ -16,6 +17,7 @@ import (
 func main() {
 
 	cmds := []commands.Cmd{
+		commands.NewMassaCnisHomCat8(),
 		commands.MergeFetch(),
 		commands.MassaListaCatalogos(),
 	}
@@ -57,9 +59,18 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 	}
 
 	if outStr != "" {
-		callRofiMessage(cmd.Binary, outStr)
+		var out string
+		if len(cmd.FilterOutput) != 0 {
+			out = output.Filter(outStr, cmd.FilterOutput)
+		} else {
+			out = outStr
+		}
+
 		if cmd.Clipboard {
-			clip.WriteAll(outStr)
+			callRofiMessage(cmd.Binary, out)
+			clip.WriteAll(out)
+		} else {
+			callRofi(out)
 		}
 	}
 

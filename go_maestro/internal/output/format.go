@@ -1,68 +1,65 @@
 package output
 
-/*
-
 import (
-"github.com/tidwall/gjson"
-"regexp"
-"strconv"
-"strings"
+	"encoding/json"
+	"github.com/tidwall/gjson"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 var startWithDot = regexp.MustCompile(`\.[^\s]+`)
+var startWithAt = regexp.MustCompile(`@[^\s]+`)
 
-type (
-	Formatter func(input interface{}) string
-)
 
-const devFormat = `.web_url .author.username .commit.username .commit.created_at`
-const homFormat = `.web_url .author.username .commit.created_at`
-
-func NewFormatter(fields string) Formatter {
-
-	f := func(input interface{}) string {
-		return ""
+func Filter(jsonInput string, filter []string) string {
+	if len(filter) == 0 {
+		return jsonInput
 	}
+	var aux interface{}
+	json.Unmarshal([]byte(jsonInput), &aux)
+	m := aux.(map[string]interface{})
 
-	return f
-}
-
-func FormatDev(input interface{}) string {
-
-	return format(ToJsonStr(input), parseOutputArgs(devFormat, "#.merge")...)
-}
-
-func FormatHom(input interface{}) string {
-
-	return format(ToJsonStr(input), parseOutputArgs(homFormat, "#.merge")...)
-}
-
-func FormatJson(input interface{}) string {
-	return ToJsonStr(input)
-}
-
-func FormatAuto(input interface{}) string {
-	r := input.([]MRResult)
-
-	sb := strings.Builder{}
-	for _, result := range r {
-		var fmt string
-		if result.Merge.TargetBranch == "desenvolvimento" {
-			fmt = devFormat
-		} else {
-			fmt = homFormat
+	for i, s := range filter {
+		fields := startWithDot.FindAllString(s, -1)
+		aliases := startWithAt.FindAllString(s, -1)
+		if len(fields) > 1 || len(aliases) > 1 {
+			log.Fatal("filtro inválido: ", s)
 		}
-
-		str := format(ToJsonStr(result), parseOutputArgs(fmt, "merge")...)
-
-		sb.WriteString(str)
+		field := strings.Replace(fields[0], ".", "", -1)
+		if _, ok := m[field]; !ok {
+			continue
+		}
+		if len(aliases) > 0 {
+			alias := strings.Replace(aliases[0], "@", "", -1)
+			filter[i] = alias
+			m[alias] = m[field]
+			delete(m, field)
+		} else {
+			filter[i] = field
+		}
 	}
-	return sb.String()
-
+	for key := range m {
+		if !contains(key, filter) {
+			delete(m, key)
+		}
+	}
+	marshal, _ := json.Marshal(m)
+	return string(marshal)
 }
 
-func format(input string, output ...string) string {
-	get := gjson.GetMany(input, output...)
+func contains(key string, filter []string) bool {
+	for _, s := range filter {
+		if key == s {
+			return true
+		}
+	}
+	return false
+}
+
+func format(jsonInput string, output ...string) string {
+	get := gjson.GetMany(jsonInput, output...)
 
 	sb := new(strings.Builder)
 
@@ -84,30 +81,3 @@ func format(input string, output ...string) string {
 
 	return sb.String()
 }
-
-func FormatString(input string, formatter Formatter) string {
-	if input == "" {
-		return ""
-	}
-	return formatter(input)
-}
-func FormatOutput(input interface{}, formatter Formatter) string {
-	return formatter(input)
-}
-
-func parseOutputArgs(arg, startPath string) []string {
-	if arg == "" {
-		return []string{}
-	}
-
-	allStr := startWithDot.FindAllString(arg, -1)
-
-	for i, s := range allStr {
-		allStr[i] = strings.Join([]string{startPath, s}, "")
-
-	}
-
-	return allStr
-}
-
-*/
