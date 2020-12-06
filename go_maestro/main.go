@@ -59,20 +59,34 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 	}
 
 	if outStr != "" {
-		var out string
-		if len(cmd.FilterOutput) != 0 {
-			out = output.Filter(outStr, cmd.FilterOutput)
+		afterFilterStr := tryFilter(cmd.FilterOutput, outStr)
+		afterFormatStr, hasFormat := tryFormat(cmd.FormatOutput, afterFilterStr)
+		if hasFormat {
+			callRofi(afterFormatStr)
 		} else {
-			out = outStr
+			callRofiMessage(cmd.Binary, afterFormatStr)
+		}
+		if cmd.CopyOutput {
+			_ = clip.WriteAll(afterFormatStr)
 		}
 
-		if cmd.Clipboard {
-			callRofiMessage(cmd.Binary, out)
-			clip.WriteAll(out)
-		} else {
-			callRofi(out)
-		}
 	}
+
+}
+
+
+func tryFormat(formatOutput []string, str string) (string, bool) {
+	if len(formatOutput) == 0{
+		return str, false
+	}
+	return output.Format(str, formatOutput), true
+}
+
+func tryFilter(filter []string, str string) string {
+	if len(filter) == 0 {
+		return str
+	}
+	return output.Filter(str, filter)
 
 }
 

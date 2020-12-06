@@ -1,16 +1,15 @@
 package commands
 
-import "reflect"
-
 type Cmd struct {
-	Binary string
-	Name      string
-	Desc string
-	Args      []string
-	UserInput map[string]string
-	Clipboard bool
+	Binary     string
+	Name       string
+	Desc       string
+	Args       []string
+	UserInput  map[string]string
+	CopyOutput bool
+	CopySelection bool
 	FilterOutput []string
-	Filter reflect.Type
+	FormatOutput []string
 	Next *Cmd
 }
 
