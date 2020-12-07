@@ -97,7 +97,7 @@ func callRofiMessage(title, msg string) {
 }
 
 func callRofi(rofiMenu string) int {
-	rofi := exec.Command("rofi", "-i", "-dmenu", "-format", "i", "-p", "tools")
+	rofi := exec.Command("rofi", "-i", "-cache-dir", "./tmp","-dmenu", "-format", "i", "-p", "tools")
 
 	stdin, err := rofi.StdinPipe()
 	if err != nil {

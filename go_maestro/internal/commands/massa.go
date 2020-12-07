@@ -31,7 +31,7 @@ func NewMassaCnisHomCat8() Cmd{
 		UserInput:    nil,
 		Clipboard:    true,
 		FilterOutput: []string{".cpfMassa @cpf", ".nomePfMassa @nomeTitular"},
-		Next:         nil,
+			Next:         nil,
 	}
 
 }
