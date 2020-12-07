@@ -2,8 +2,10 @@ package output
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/tidwall/gjson"
 	"log"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -12,10 +14,32 @@ func Filter(jsonInput string, filter []string) string {
 	if len(filter) == 0 {
 		return jsonInput
 	}
+
 	var aux interface{}
 	json.Unmarshal([]byte(jsonInput), &aux)
-	m := aux.(map[string]interface{})
+	of := reflect.TypeOf(aux)
 
+	if of.Kind() == reflect.Map {
+		m := clear(filter, aux)
+		marshal, _ := json.Marshal(m)
+		return string(marshal)
+	}
+	if of.Kind() == reflect.Slice {
+		m := aux.([]interface{})
+		for i, v := range m {
+			m[i] = clear(filter, v)
+		}
+		fmt.Println("%v", m)
+
+		marshal, _ := json.Marshal(m)
+		return string(marshal)
+	}
+
+	return ""
+}
+
+func clear(filter []string, aux interface{}) map[string]interface{} {
+	m := aux.(map[string]interface{})
 	for i, s := range filter {
 		split := strings.Split(s, " ")
 		if len(split) < 1 || len(split) > 2 {
@@ -41,8 +65,7 @@ func Filter(jsonInput string, filter []string) string {
 			delete(m, key)
 		}
 	}
-	marshal, _ := json.Marshal(m)
-	return string(marshal)
+	return m
 }
 
 func contains(key string, filter []string) bool {
@@ -54,7 +77,7 @@ func contains(key string, filter []string) bool {
 	return false
 }
 
-func format(jsonInput string, output ...string) string {
+func Format(jsonInput string, output []string) string {
 	get := gjson.GetMany(jsonInput, output...)
 
 	sb := new(strings.Builder)

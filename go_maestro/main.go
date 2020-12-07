@@ -22,9 +22,9 @@ func main() {
 		commands.MassaListaCatalogos(),
 	}
 
-	output := callRofi(buildRofiFromCmds(cmds))
-
-	chosenCmd := parseChosenCmd(output, cmds)
+	rofiOutput := callRofi(buildRofiFromCmds(cmds), "i")
+	index, _ := strconv.Atoi(strings.TrimRight(rofiOutput, "\n"))
+	chosenCmd := parseChosenCmd(index, cmds)
 
 	if chosenCmd == nil {
 		return
@@ -59,20 +59,39 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 	}
 
 	if outStr != "" {
-		var out string
-		if len(cmd.FilterOutput) != 0 {
-			out = output.Filter(outStr, cmd.FilterOutput)
+		afterFilterStr := tryFilter(cmd.FilterOutput, outStr)
+		afterFormatStr, hasFormat := tryFormat(cmd.FormatOutput, afterFilterStr)
+		if hasFormat {
+			if cmd.CallNext != nil {
+				if cmd.OutputConverter != nil {
+					callRofiWithCmd(afterFormatStr, cmd.OutputConverter, cmd)
+				}
+			}else{
+				callRofi(afterFormatStr, "i")
+			}
 		} else {
-			out = outStr
+			callRofiMessage(cmd.Binary, afterFormatStr)
 		}
 
-		if cmd.Clipboard {
-			callRofiMessage(cmd.Binary, out)
-			clip.WriteAll(out)
-		} else {
-			callRofi(out)
+		if cmd.CopyOutput {
+			_ = clip.WriteAll(afterFormatStr)
 		}
 	}
+
+}
+
+func tryFormat(formatOutput []string, str string) (string, bool) {
+	if len(formatOutput) == 0 {
+		return str, false
+	}
+	return output.Format(str, formatOutput), true
+}
+
+func tryFilter(filter []string, str string) string {
+	if len(filter) == 0 {
+		return str
+	}
+	return output.Filter(str, filter)
 
 }
 
@@ -96,25 +115,34 @@ func callRofiMessage(title, msg string) {
 	_ = rofi.Run()
 }
 
-func callRofi(rofiMenu string) int {
-	rofi := exec.Command("rofi", "-i", "-cache-dir", "./tmp","-dmenu", "-format", "i", "-p", "tools")
+func callRofiWithCmd(rofiMenu string, converter func(string) (string, []string), cmd *commands.Cmd) {
+	out := callRofi(rofiMenu, "s")
+
+	_, args := converter(out)
+	nextCmd := cmd.CallNext(args...)
+	callCmd(nextCmd, []string{})
+}
+
+func callRofi(rofiMenu string, format string) string {
+	rofi := exec.Command("rofi", "-i", "-dmenu", "-p", "selecione:", "-format", format)
+
 
 	stdin, err := rofi.StdinPipe()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	go func() {
 		defer stdin.Close()
 		_, _ = io.WriteString(stdin, rofiMenu)
 	}()
 
-	output, err := rofi.CombinedOutput()
+	out, err := rofi.CombinedOutput()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	println("output", string(output))
-	atoi, _ := strconv.Atoi(strings.TrimRight(string(output), "\n"))
-	return atoi
+	return string(out)
+
 }
 
 func parseChosenCmd(index int, list []commands.Cmd) *commands.Cmd {
