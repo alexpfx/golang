@@ -20,6 +20,8 @@ func main() {
 		commands.NewMassaCnisHomCat8(),
 		commands.MergeFetch(),
 		commands.MassaListaCatalogos(),
+		commands.SibeSibeDeploy(),
+		commands.SibeSibeClient(),
 	}
 
 	rofiOutput := callRofi(buildRofiFromCmds(cmds), "i")
@@ -124,7 +126,7 @@ func callRofiWithCmd(rofiMenu string, converter func(string) (string, []string),
 }
 
 func callRofi(rofiMenu string, format string) string {
-	rofi := exec.Command("rofi", "-i", "-dmenu", "-p", "selecione:", "-format", format)
+	rofi := exec.Command("rofi", "-i", "-dmenu", "-p", "selecione", "-format", format)
 
 
 	stdin, err := rofi.StdinPipe()
