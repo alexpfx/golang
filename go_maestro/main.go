@@ -20,6 +20,7 @@ func main() {
 		commands.NewMassaCnisHomCat8(),
 		commands.MergeFetch(),
 		commands.MassaListaCatalogos(),
+		commands.SibeListaDeploys(),
 	}
 
 	rofiOutput := callRofi(buildRofiFromCmds(cmds), "i")
