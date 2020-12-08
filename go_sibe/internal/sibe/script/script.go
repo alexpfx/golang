@@ -1,8 +1,8 @@
 package script
 
 type Script struct {
-	Name string
-	Id   int
+	Name string `json:"name"`
+	Id   int `json:"id"`
 }
 
 var ClientScripts = []Script{
