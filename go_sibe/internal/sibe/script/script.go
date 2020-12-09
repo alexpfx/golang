@@ -1,11 +1,24 @@
 package script
 
-type Script struct {
+type Item struct {
 	Name string `json:"name"`
-	Id   int `json:"id"`
+	Id   int    `json:"id"`
 }
 
-var ClientScripts = []Script{
+type Script struct {
+	CmdPath string
+	RunPath string
+}
+
+type Runner interface {
+	Run(script Script, args ...string) (string, error)
+}
+
+func (c Script) Run(script Script, args ...string) (string, error) {
+	return "", nil
+}
+
+var ClientsItems = []Item{
 	{
 		Name: "All",
 		Id:   0,
@@ -44,7 +57,7 @@ var ClientScripts = []Script{
 	},
 }
 
-var DeployScripts = []Script{
+var DeployItems = []Item{
 	{
 		Name: "All",
 		Id:   0,
