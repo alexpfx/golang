@@ -1,5 +1,13 @@
 package script
 
+import (
+	"bytes"
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+)
+
 type Item struct {
 	Name string `json:"name"`
 	Id   int    `json:"id"`
@@ -15,6 +23,20 @@ type Runner interface {
 }
 
 func (c Script) Run(script Script, args ...string) (string, error) {
+	cmd := exec.Cmd{Path: c.CmdPath, Dir: c.RunPath, Args: args}
+	cmd.Env = os.Environ()
+	var stdErr, stdOut bytes.Buffer
+	cmd.Stdout = &stdOut
+	cmd.Stderr = &stdErr
+
+	err := cmd.Run()
+	outStr, errStr := string(stdOut.Bytes()), string(stdErr.Bytes())
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	fmt.Printf(outStr)
+	fmt.Println(errStr)
+
 	return "", nil
 }
 
