@@ -21,7 +21,7 @@ func main() {
 
 	deploysCmd = flag.NewFlagSet("deploys", flag.ExitOnError)
 	clientsCmd = flag.NewFlagSet("clients", flag.ExitOnError)
-	runScriptCmd = flag.NewFlagSet("run", flag.ExitOnError)
+	//runScriptCmd = flag.NewFlagSet("run", flag.ExitOnError)
 
 	args := os.Args
 	if len(args) < 2 {
