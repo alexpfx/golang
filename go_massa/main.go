@@ -2,59 +2,75 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/alexpfx/golang/go_massa/internal/massa"
+	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 )
 
 func main() {
-	args := os.Args
-	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
-	getCmd := flag.NewFlagSet("get", flag.ExitOnError)
 
-	var amb, cat int
-	listCmd.IntVar(&amb, "a", 2, "Número do ambiente {1 - desenvolvimento | 2 - homologação}")
+	app := &cli.App{
+		Commands: []*cli.Command{
+			{
+				Name:  "list",
+				Usage: "lista todos os catálogos com massa disponível",
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:    "ambiente",
+						Aliases: []string{"a"},
+						Usage:   "listar catálogos do ambiente",
+						Value:   2,
+					},
+				},
+				Action: func(context *cli.Context) error {
+					list := massa.NewCatalogoList()
+					catalogos, err := list.Catalogos(context.Int("ambiente"))
+					if err != nil {
+						return err
+					}
+					fmt.Println(ToJsonStr(catalogos))
+					return nil
+				},
+			},
+			{
+				Name:  "get",
+				Usage: "obtém uma massa do catálogo e ambiente",
+				Action: func(context *cli.Context) error {
+					getter := massa.NewRetriever()
+					massa, err := getter.Older(context.Int("catalogo"), context.Int("ambiente"))
+					if err != nil {
+						return err
+					}
+					fmt.Println(ToJsonStr(massa))
+					return nil
 
-	getCmd.IntVar(&cat, "c", 8, "Número do catálogo massa-sibe")
-	getCmd.IntVar(&amb, "a", 2, "Número do ambiente {1 - desenvolvimento | 2 - homologação}")
+				},
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:    "ambiente",
+						Aliases: []string{"a"},
+						Usage:   "ambiente",
+						Value:   2,
+					},
+					&cli.IntFlag{
+						Name:    "catalogo",
+						Aliases: []string{"c"},
+						Usage:   "catalogo",
+						Value:   8,
+					},
+				},
+			},
+		},
+	}
 
-	switch args[1] {
-	case "list":
-		err := listCmd.Parse(args[2:])
-		if err != nil {
-			listCmd.PrintDefaults()
-			os.Exit(1)
-		}
-
-		list := massa.NewCatalogoList()
-		catalogos, err := list.Catalogos(amb)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		fmt.Println(ToJsonStr(catalogos))
-
-	case "get":
-		err := getCmd.Parse(args[2:])
-
-		getter := massa.NewRetriever()
-		massa, err := getter.Older(cat, amb)
-		if err != nil {
-			listCmd.PrintDefaults()
-			os.Exit(0)
-		}
-		fmt.Println(ToJsonStr(massa))
-
-	default:
-		flag.PrintDefaults()
-		os.Exit(1)
-		//log.Fatalf("argumento(s) inválido(s): %v", args[1:])
-
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 }
-
 func ToJsonStr(results interface{}) string {
 	bytes, err := json.MarshalIndent(results, "", "   ")
 	if err != nil {
