@@ -1,11 +1,67 @@
 package script
 
-type Script struct {
+import (
+	"io"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+type Option struct {
 	Name string `json:"name"`
-	Id   int `json:"id"`
+	Id   int    `json:"id"`
 }
 
-var ClientScripts = []Script{
+type Script struct {
+	Path string
+	Cmd  string
+}
+
+type Runner interface {
+	Run(args []string) (io.ReadCloser, error)
+}
+
+type runner struct {
+	cmd string
+}
+
+func SibeClient() Script {
+	return Script{
+		Path: os.Getenv("SIBE_DIR"),
+		Cmd:  "sibeClient.sh",
+	}
+}
+
+func SibeDeploy() Script {
+	return Script{
+		Path: os.Getenv("SIBE_DIR"),
+		Cmd:  "sibeDeploy.sh",
+	}
+}
+
+func NewRunner(script Script) Runner {
+	return runner{
+		cmd: strings.Join([]string{script.Path, script.Cmd}, "/"),
+	}
+}
+
+func (c runner) Run(args []string) (io.ReadCloser, error) {
+	cmd := exec.Command(c.cmd, args...)
+	pipe, err := cmd.StdoutPipe()
+
+	err = cmd.Start()
+	if err != nil{
+		log.Fatal((err))
+	} 
+	err = cmd.Wait()
+	if err != nil{
+		log.Fatal((err))
+	}
+	return pipe, err
+}
+
+var ClientScripts = []Option{
 	{
 		Name: "All",
 		Id:   0,
@@ -44,7 +100,7 @@ var ClientScripts = []Script{
 	},
 }
 
-var DeployScripts = []Script{
+var DeployScripts = []Option{
 	{
 		Name: "All",
 		Id:   0,
