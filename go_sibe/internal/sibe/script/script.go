@@ -19,7 +19,7 @@ type Script struct {
 }
 
 type Runner interface {
-	Run(args []string, ch chan string) (error)
+	Run(args []string, ch chan string) error
 }
 
 type runner struct {
@@ -46,10 +46,10 @@ func NewRunner(script Script) Runner {
 	}
 }
 
-func (c runner) Run(args []string, ch chan string) (error) {
+func (c runner) Run(args []string, ch chan string) error {
 	cmd := exec.Command(c.cmd, args...)
 	pipe, err := cmd.StdoutPipe()
-	
+
 	defer close(ch)
 
 	err = cmd.Start()
@@ -60,15 +60,15 @@ func (c runner) Run(args []string, ch chan string) (error) {
 	scanner := bufio.NewScanner(pipe)
 
 	ch <- "teste"
-	go func ()  {
-		for scanner.Scan(){
+	go func() {
+		for scanner.Scan() {
 			ch <- scanner.Text()
 		}
 	}()
 
 	cmd.Wait()
 	return nil
-	
+
 }
 
 var ClientScripts = []Option{
