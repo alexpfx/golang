@@ -1,7 +1,7 @@
 package script
 
 import (
-	"io"
+	"bufio"
 	"log"
 	"os"
 	"os/exec"
@@ -19,7 +19,7 @@ type Script struct {
 }
 
 type Runner interface {
-	Run(args []string) (io.ReadCloser, error)
+	Run(args []string, ch chan string) (error)
 }
 
 type runner struct {
@@ -28,14 +28,14 @@ type runner struct {
 
 func SibeClient() Script {
 	return Script{
-		Path: os.Getenv("SIBE_DIR"),
+		Path: os.Getenv("SIBE_DIR") + "/scripts",
 		Cmd:  "sibeClient.sh",
 	}
 }
 
 func SibeDeploy() Script {
 	return Script{
-		Path: os.Getenv("SIBE_DIR"),
+		Path: os.Getenv("SIBE_DIR") + "/scripts",
 		Cmd:  "sibeDeploy.sh",
 	}
 }
@@ -46,19 +46,29 @@ func NewRunner(script Script) Runner {
 	}
 }
 
-func (c runner) Run(args []string) (io.ReadCloser, error) {
+func (c runner) Run(args []string, ch chan string) (error) {
 	cmd := exec.Command(c.cmd, args...)
 	pipe, err := cmd.StdoutPipe()
+	
+	defer close(ch)
 
 	err = cmd.Start()
-	if err != nil{
-		log.Fatal((err))
-	} 
-	err = cmd.Wait()
-	if err != nil{
+	if err != nil {
 		log.Fatal((err))
 	}
-	return pipe, err
+
+	scanner := bufio.NewScanner(pipe)
+
+	ch <- "teste"
+	go func ()  {
+		for scanner.Scan(){
+			ch <- scanner.Text()
+		}
+	}()
+
+	cmd.Wait()
+	return nil
+	
 }
 
 var ClientScripts = []Option{

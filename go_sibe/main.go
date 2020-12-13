@@ -1,14 +1,14 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/alexpfx/go_common/str"
 	"github.com/alexpfx/golang/go_sibe/internal/sibe/script"
 	"github.com/urfave/cli"
-	"log"
-	"os"
 )
 
 var deploysCmd *flag.FlagSet
@@ -17,8 +17,8 @@ var clientsCmd *flag.FlagSet
 func usage() {
 	deploysCmd.PrintDefaults()
 }
-func main() {
 
+func main() {
 	app := &cli.App{
 		Commands: []cli.Command{
 			{
@@ -30,26 +30,24 @@ func main() {
 						Usage: "executa o script sibeDeploy.sh",
 					},
 					&cli.BoolFlag{
-						
+
 						Name:  "client",
-						Usage: "executa o script sibeDeploy.sh",
+						Usage: "executa o script sibeClient.sh",
 					},
 				},
 				Action: func(c *cli.Context) error {
-					fmt.Println("executado :", c.Args())
 					cl := c.Bool("client")
-					fmt.Println(cl)
 
 					if cl {
 						rcl := script.NewRunner(script.SibeClient())
-						pout, _ := rcl.Run(c.Args())
+						ch := make(chan string, 2)
 
-						scan := bufio.NewScanner(pout)
-						go func() {
-							for scan.Scan() {
-								fmt.Println(scan.Text())
-							}
-						}()
+						go rcl.Run(c.Args(), ch)
+
+						for m := range ch {
+							fmt.Println(m)
+						}
+
 					}
 
 					return nil
