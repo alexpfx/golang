@@ -112,7 +112,7 @@ func appendUserArgs(chosenCmd *commands.Cmd) []string {
 	return moreArgs
 }
 
-func callRofiMessage(title, msg string) {
+func callRofiMessage(title, 3msg string) {
 	rofi := exec.Command("rofi", "-e", fmt.Sprintf("%s:\n\n%s", title, msg))
 	_ = rofi.Run()
 }
