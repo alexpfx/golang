@@ -39,6 +39,9 @@ type Cmd struct {
 
 	// FormatOutput permite transformar a saída json em uma string utilizando as chaves e valores do json (consultar lib: github.com/tidwall/gjson)
 	FormatOutput []string
+
+	DynamicFormatOutput func(output string) []string
+	
 	// OutputConverter função que converte a saída de um comando para que possa ser utilizada como argumento do próximo comando (CallNext).
 	OutputConverter func(out string) (string, []string)
 	// CallNext recebe uma função utilizada para preparar um novo comando a ser executado em sequência
