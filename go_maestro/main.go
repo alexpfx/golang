@@ -69,14 +69,17 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 					callRofiWithCmd(afterFormatStr, cmd.OutputConverter, cmd)
 				}
 			}else{
-				callRofi(afterFormatStr, "i")
+				//callRofi(afterFormatStr, "i")
 			}
 		} else {
 			callRofiMessage(cmd.Binary, afterFormatStr)
 		}
 
 		if cmd.CopyOutput {
-			_ = clip.WriteAll(afterFormatStr)
+			err = clip.WriteAll(afterFormatStr)
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
 		}
 	}
 

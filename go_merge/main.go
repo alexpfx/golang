@@ -83,14 +83,6 @@ func checkIdsCount(ids []int) {
 	}
 }
 
-func checkToken() string {
-	token := os.Getenv("PRIVATE_TOKEN")
-	if token == "" {
-		log.Fatal(fmt.Errorf("token inválido. o token deve ser passado a aplicação através da variável de ambiente PRIVATE_TOKEN"))
-	}
-	return token
-}
-
 func mapFilter(author string, branch string) map[string]string {
 	result := make(map[string]string)
 

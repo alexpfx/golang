@@ -2,6 +2,7 @@ package merge
 
 import (
 	"github.com/tidwall/gjson"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -41,6 +42,7 @@ func FormatJson(input interface{}) string {
 
 func FormatAuto(input interface{}) string {
 	r := input.([]MRResult)
+	http.Get()
 
 	sb := strings.Builder{}
 	for _, result := range r {

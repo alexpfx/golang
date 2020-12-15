@@ -20,7 +20,7 @@ func main() {
 					&cli.IntFlag{
 						Name:    "ambiente",
 						Aliases: []string{"a"},
-						Usage:e   "listar catálogos do ambiente",
+						Usage:   "listar catálogos do ambiente",
 						Value:   2,
 					},
 				},

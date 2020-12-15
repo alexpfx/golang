@@ -3,6 +3,7 @@ package output
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/tidwall/gjson"
 	"log"
 	"reflect"
