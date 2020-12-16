@@ -1,24 +1,25 @@
 package commands
 
 import (
-	"encoding/json"
+	"github.com/alexpfx/golang/go_maestro/internal/output"
+	"strings"
 )
 
 func MergeFetch() Cmd {
 	defaultFmt := []string{
 		"#.merge.web_url",
 		"#.merge.author.username",
+		"#.merge.commit.username",
 		"#.merge.commit.created_at",
 	}
 
 	formatMap := map[string][]string{
-		"desenvolvimento": {
+		"desenvolvimento": defaultFmt,
+		"homologacao": {
 			"#.merge.web_url",
 			"#.merge.author.username",
-			"#.merge.commit.username",
 			"#.merge.commit.created_at",
 		},
-		"homologacao": defaultFmt,
 	}
 
 	return Cmd{
@@ -28,20 +29,11 @@ func MergeFetch() Cmd {
 		Args:       []string{"info"},
 		UserInput:  map[string]string{"mergeId": ""},
 		CopyOutput: true,
-		FormatOutput: []string{
-			"#.merge.web_url",
-			"#.merge.author.username",
-			"#.merge.commit.username",
-			"#.merge.commit.created_at",
-		},
-		DynamicFormatOutput: func(output string) []string {
-			var objmap map[string]string
-
-			_ = json.Unmarshal([]byte(output), &objmap)
-			branch := objmap["target_branch"]
-			v, ok := formatMap[branch]
+		DynamicFormatOutput: func(out string) []string {
+			tbranch := output.Format(out, []string{"#.merge.target_branch"})
+			branchFormat, ok := formatMap[strings.TrimSpace(tbranch)]
 			if ok {
-				return v
+				return branchFormat
 			}
 			return defaultFmt
 		},

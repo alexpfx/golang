@@ -87,7 +87,7 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 
 func tryFormat(cmd *commands.Cmd, str string) (string, bool) {
 	fmtOut := cmd.FormatOutput
-	if cmd.DynamicFormatOutput != nil && len(fmtOut) > 0 {
+	if cmd.DynamicFormatOutput == nil && len(fmtOut) > 0 {
 		log.Fatal("argumento inválido: forneça apenas um dos seguintes parâmetros: cmd.DynamicFormatOutput, cmd.FormatOutput")
 	}
 	if len(fmtOut) > 0 {
