@@ -1,9 +1,30 @@
 package commands
 
-import "github.com/urfave/cli/v2"
+import (
+	"fmt"
+	"github.com/urfave/cli/v2"
+)
 
 func addAction(context *cli.Context) error {
 
+	if context.NArg() < 1 {
+		return fmt.Errorf("a URL do bookmark é obrigatória")
+	}
+	url := context.Args().First()
+	err := checkUrl(&url)
+	if err != nil {
+		return fmt.Errorf("a URL passada é inválida: %s", url)
+	}
+
+	context.String("desc")
+	context.String("category")
+	context.StringSlice("tag")
+	context.Bool("auto")
+
+	return nil
+}
+
+func checkUrl(url *string) error{
 	return nil
 }
 

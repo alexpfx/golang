@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -21,9 +22,15 @@ func LoadBookmarks(storageFile string) BookmarkHolder {
 	//log.Println("bookmarkFilePath ", bookmarkFilePath)
 
 	bytes, err := ioutil.ReadFile(storageFile)
-	checkErr(err)
+	if err != nil {
+		log.SetOutput(os.Stderr)
+		log.Println("arquivo de bookmarks não existe:", storageFile)
+		return &BookmarkCollection{
+			Bookmarks: []Item{},
+		}
+	}
 
-	var collection Collection
+	var collection BookmarkCollection
 
 	//err = tom.Unmarshal(bytes, &collection)
 
@@ -48,7 +55,7 @@ func ReadFromChromeBookmarkFile(filePath string) (bookmarks BookmarkHolder) {
 }
 
 func extractFromChromeMap(collection ChromeCollection) BookmarkHolder {
-	bookmarker := Collection{
+	bookmarker := BookmarkCollection{
 		[]Item{},
 	}
 

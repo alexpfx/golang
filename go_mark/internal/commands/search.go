@@ -11,12 +11,11 @@ import (
 )
 
 func searchAction(context *cli.Context) error {
-	
+
 	file := storageFilePath(context)
 
 	bmHolder := bookmark.LoadBookmarks(file)
 
-	
 	if context.Bool("all") {
 		js, err := str.FormatJson(bmHolder.All())
 		if err != nil {
@@ -36,17 +35,16 @@ func storageFilePath(context *cli.Context) string {
 	return storageFile
 }
 
-
 func NewSearchCommand() *cli.Command {
-	configDir, err := os.UserConfigDir() 
+	configDir, err := os.UserConfigDir()
 	cacheDir, err := os.UserCacheDir()
-	if (err != nil){
+	if err != nil {
 		log.Fatal("variavel não inicializada")
 	}
 
 	configFile := configDir + "/bmark/conf"
 	bookmarkFile := cacheDir + "/bmark/bookmarks"
-	
+
 	return &cli.Command{
 		Name:  "search",
 		Usage: "busca um bookmark pela palavra chave",
@@ -68,7 +66,7 @@ func NewSearchCommand() *cli.Command {
 				Name:  "storage",
 				Usage: "arquivo de onde os bookmarks devem ser lidos",
 				Value: bookmarkFile,
-			},			
+			},
 		},
 
 		Action: searchAction,

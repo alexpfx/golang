@@ -12,23 +12,23 @@ import (
 )
 
 const pathRecuperaRecente = "massa/recuperaMaisRecente"
-const pathRecuperaAntiga = "massa/recuperaMaisRecente"
+const pathRecuperaAntiga = "massa/recuperaMaisAntiga"
 
 type Retriever interface {
-	MostRecent(catalogo, ambiente int) (Massa, error)
-	Older(catalogo, ambiente int) (Massa, error)
+	Newest(catalogo, ambiente int) (Massa, error)
+	Oldest(catalogo, ambiente int) (Massa, error)
 }
 
 type retriever struct {
 	client *http.Client
 }
 
-func (c retriever) MostRecent(catalogo, ambiente int) (Massa, error) {
+func (c retriever) Newest(catalogo, ambiente int) (Massa, error) {
 	url := strings.Join([]string{baseUrl, pathRecuperaRecente, strconv.Itoa(catalogo), strconv.Itoa(ambiente)}, "/")
 	return c.retrieve(catalogo, ambiente, url)
 }
 
-func (c retriever) Older(catalogo, ambiente int) (Massa, error) {
+func (c retriever) Oldest(catalogo, ambiente int) (Massa, error) {
 	url := strings.Join([]string{baseUrl, pathRecuperaAntiga, strconv.Itoa(catalogo), strconv.Itoa(ambiente)}, "/")
 	return c.retrieve(catalogo, ambiente, url)
 }

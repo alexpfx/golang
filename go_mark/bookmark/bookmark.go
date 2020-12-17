@@ -11,8 +11,8 @@ type BookmarkHolder interface {
 	AllUrls() []string
 }
 
-// Collection armazena uma lista de bookmarks
-type Collection struct {
+// BookmarkCollection armazena uma lista de bookmarks
+type BookmarkCollection struct {
 	Bookmarks []Item `toml:"bookmark" json:"bookmark"`
 }
 
@@ -36,7 +36,7 @@ type ChromeItem struct {
 }
 
 // Update atualiza um bookmark
-func (c *Collection) Update(item Item) {
+func (c *BookmarkCollection) Update(item Item) {
 	p, found := c.Search(item)
 	if found {
 		(*p).update(item)
@@ -51,19 +51,19 @@ func (i *Item) update(item Item) {
 }
 
 //Add adiciona um bookmark a collection
-func (c *Collection) Add(item Item) {
+func (c *BookmarkCollection) Add(item Item) {
 	c.Bookmarks = append(c.Bookmarks, item)
 }
 
 // All retorna todos os Bookmarks
-func (c Collection) All() []Item {
+func (c BookmarkCollection) All() []Item {
 	return c.Bookmarks
 }
 
 var reg, err = regexp.Compile("[^a-zA-Z0-9]+")
 
 // AllUrls retorna um slice com todas as URLs
-func (c Collection) AllUrls() []string {
+func (c BookmarkCollection) AllUrls() []string {
 	urls := make([]string, 0)
 
 	for _, it := range c.Bookmarks {
@@ -78,7 +78,7 @@ func (c Collection) AllUrls() []string {
 }
 
 //Search busca um bookmark pelo url
-func (c Collection) Search(item Item) (*Item, bool) {
+func (c BookmarkCollection) Search(item Item) (*Item, bool) {
 	for i, it := range c.Bookmarks {
 		if it.Url == item.Url {
 			return &c.Bookmarks[i], true
