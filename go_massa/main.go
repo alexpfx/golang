@@ -39,7 +39,7 @@ func main() {
 				Usage: "obtém uma massa do catálogo e ambiente",
 				Action: func(context *cli.Context) error {
 					getter := massa.NewRetriever()
-					massa, err := getter.Older(context.Int("catalogo"), context.Int("ambiente"))
+					massa, err := getter.MostRecent(context.Int("catalogo"), context.Int("ambiente"))
 					if err != nil {
 						return err
 					}
