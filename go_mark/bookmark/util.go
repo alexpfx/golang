@@ -18,8 +18,8 @@ func checkPrint(err error) {
 		os.Exit(0)
 	}
 }
-func checkPanic(err error) {
+func checkErr(err error) {
 	if err != nil {
-		log.Panic(err)
+		log.Fatalf(err.Error())
 	}
 }

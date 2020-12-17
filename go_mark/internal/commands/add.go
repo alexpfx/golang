@@ -2,18 +2,17 @@ package commands
 
 import "github.com/urfave/cli/v2"
 
-func action (context *cli.Context) error{
-
-
+func addAction(context *cli.Context) error {
 
 	return nil
 }
 
 func NewAddCommand() *cli.Command {
-
+	
 	return &cli.Command{
-		Action: action,
-		Name: "add",
+		Action: addAction,
+		Usage: "adiciona um bookmark",
+		Name:   "add",
 		ArgsUsage: `add http://www.duckduckgo.com` +
 			`[--desc 'site de pesquisa baseado em privacidade']` +
 			`[--category buscadores] [--tag buscador][--tag pesquisa] [--auto]`,
@@ -44,7 +43,6 @@ func NewAddCommand() *cli.Command {
 					"linha de comando",
 			},
 		},
-		Usage: "adiciona um bookmark",
 	}
 
 }

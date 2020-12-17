@@ -14,41 +14,40 @@ const envVarCustomConfigDir = "BMARK_CONFIG_DIR"
 const configFileName = "/conf.toml"
 const bookmarkBkpFilename = "/bookmarks.toml.bk"
 
-// ReadBookmarks lê os bookmarks do arquivo
-func ReadBookmarks() Bookmarker {
-	bookmarkFilePath := StorageFileFullPath(os.Getenv(envVarCustomConfigDir))
+// LoadBookmarks lê os bookmarks do arquivo
+func LoadBookmarks(storageFile string) BookmarkHolder {
+	//bookmarkFilePath := StorageFileFullPath(os.Getenv(envVarCustomConfigDir))
 
 	//log.Println("bookmarkFilePath ", bookmarkFilePath)
 
-	bytes, err := ioutil.ReadFile(bookmarkFilePath)
-	checkPanic(err)
+	bytes, err := ioutil.ReadFile(storageFile)
+	checkErr(err)
 
 	var collection Collection
 
 	//err = tom.Unmarshal(bytes, &collection)
-	if len(bytes) != 0 {
-		err = json.Unmarshal(bytes, &collection)
-		checkPanic(err)
-	}
+
+	err = json.Unmarshal(bytes, &collection)
+	checkErr(err)
 
 	return &collection
 }
 
-func ReadFromChromeBookmarkFile(filePath string) (bookmarks Bookmarker) {
+func ReadFromChromeBookmarkFile(filePath string) (bookmarks BookmarkHolder) {
 	fileBytes, err := ioutil.ReadFile(filePath)
-	checkPanic(err)
+	checkErr(err)
 
 	jMap := ChromeCollection{}
 
 	err = json.Unmarshal(fileBytes, &jMap)
-	checkPanic(err)
+	checkErr(err)
 
 	bookmarks = extractFromChromeMap(jMap)
 
 	return
 }
 
-func extractFromChromeMap(collection ChromeCollection) Bookmarker {
+func extractFromChromeMap(collection ChromeCollection) BookmarkHolder {
 	bookmarker := Collection{
 		[]Item{},
 	}
@@ -88,14 +87,14 @@ func traverse(children []ChromeItem, parents []string) (items []Item) {
 }
 
 //StoreBookmarks é responsavel por armazenar os bookmarks em arquivo
-func StoreBookmarks(bookmarks Bookmarker) {
+func StoreBookmarks(bookmarks BookmarkHolder) {
 	bytes, err := json.MarshalIndent(bookmarks, " ", "   ")
-	checkPanic(err)
+	checkErr(err)
 
 	fullPath := StorageFileFullPath(os.Getenv(envVarCustomConfigDir))
 
 	err = ioutil.WriteFile(fullPath, bytes, 0777)
-	checkPanic(err)
+	checkErr(err)
 
 	//log.Printf("dados gravados. arquivo contém agora %d bytes", len(bytes))
 }
@@ -114,7 +113,7 @@ func CheckCreateStorageFile() {
 		check(err, fmt.Sprintf("não pode criar arquivo de bookmars em %s. forneça o diretório de configuração através da variável de ambiente %s", configDir, envVarCustomConfigDir))
 
 		f, err := os.Create(bookmarkFilePath)
-		checkPanic(err)
+		checkErr(err)
 		defer f.Close()
 	} else {
 		//log.Println("arquivo existe: ", bookmarkFilePath)
@@ -136,7 +135,7 @@ func GetConfigDir(customConfigDir string) string {
 		configDir = customConfigDir
 	} else {
 		userConfigDir, err := os.UserConfigDir()
-		checkPanic(err)
+		checkErr(err)
 		configDir = userConfigDir + configDirName
 	}
 	//log.Println("Config dir: ", configDir)

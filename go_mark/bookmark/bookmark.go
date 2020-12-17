@@ -2,8 +2,8 @@ package bookmark
 
 import "regexp"
 
-// Bookmarker representa um conjunto de bookmarks e operação que podem ser realizadas sobre eles
-type Bookmarker interface {
+// BookmarkHolder representa um conjunto de bookmarks e operação que podem ser realizadas sobre eles
+type BookmarkHolder interface {
 	Update(item Item)
 	Add(item Item)
 	Search(item Item) (i *Item, found bool)
