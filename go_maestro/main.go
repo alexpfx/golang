@@ -22,6 +22,7 @@ func main() {
 		commands.MassaListaCatalogos(),
 		commands.SibeSibeDeploy(),
 		commands.SibeSibeClient(),
+		commands.QuickFixActions(),
 	}
 
 	rofiOutput := callRofi(buildRofiFromCmds(cmds), "i")
