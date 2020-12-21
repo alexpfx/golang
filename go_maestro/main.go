@@ -22,6 +22,7 @@ func main() {
 		commands.MassaListaCatalogos(),
 		commands.SibeSibeDeploy(),
 		commands.SibeSibeClient(),
+		commands.QuickFixActions(),
 	}
 
 	rofiOutput := callRofi(buildRofiFromCmds(cmds), "i")
@@ -62,31 +63,45 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 
 	if outStr != "" {
 		afterFilterStr := tryFilter(cmd.FilterOutput, outStr)
-		afterFormatStr, hasFormat := tryFormat(cmd.FormatOutput, afterFilterStr)
+		afterFormatStr, hasFormat := tryFormat(cmd, afterFilterStr)
 		if hasFormat {
 			if cmd.CallNext != nil {
 				if cmd.OutputConverter != nil {
 					callRofiWithCmd(afterFormatStr, cmd.OutputConverter, cmd)
 				}
-			}else{
-				callRofi(afterFormatStr, "i")
+			} else {
+				//callRofi(afterFormatStr, "i")
 			}
 		} else {
-			callRofiMessage(cmd.Binary, afterFormatStr)
+			//callRofiMessage(cmd.Binary, afterFormatStr)
 		}
 
 		if cmd.CopyOutput {
-			_ = clip.WriteAll(afterFormatStr)
+			err = clip.WriteAll(afterFormatStr)
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
 		}
 	}
 
 }
 
-func tryFormat(formatOutput []string, str string) (string, bool) {
-	if len(formatOutput) == 0 {
+func tryFormat(cmd *commands.Cmd, str string) (string, bool) {
+	fmtOut := cmd.FormatOutput
+	if cmd.DynamicFormatOutput == nil && len(fmtOut) > 0 {
+		log.Fatal("argumento inválido: forneça apenas um dos seguintes parâmetros: cmd.DynamicFormatOutput, cmd.FormatOutput")
+	}
+	if len(fmtOut) > 0 {
+		return output.Format(str, fmtOut), true
+	}
+
+	if cmd.DynamicFormatOutput == nil {
 		return str, false
 	}
-	return output.Format(str, formatOutput), true
+
+	fmtOut = cmd.DynamicFormatOutput(str)
+	return output.Format(str, fmtOut), true
+
 }
 
 func tryFilter(filter []string, str string) string {
@@ -126,8 +141,7 @@ func callRofiWithCmd(rofiMenu string, converter func(string) (string, []string),
 }
 
 func callRofi(rofiMenu string, format string) string {
-	rofi := exec.Command("rofi", "-i", "-dmenu", "-p", "selecione", "-format", format)
-
+	rofi := exec.Command("rofi", "-i", "-dmenu", "-multi-select", "-p", "selecione", "-format", format)
 
 	stdin, err := rofi.StdinPipe()
 	if err != nil {

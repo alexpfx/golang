@@ -1,4 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/alexpfx/go_common v0.0.2 h1:AI7CZ9nubJt/ytHbOEZwtWk7lhkPtQh4pY+yTFZlmn8=
+github.com/alexpfx/go_common v0.0.2/go.mod h1:+9XDUymLIbPg7OhQx0V9bthcRwoTEGuUPU05P6AzwPI=
+github.com/alexpfx/go_common v0.0.3 h1:tSEgsoarPjNkUTp4nUXIXYRVTgkx1Y7Guc/XhWohT/Y=
+github.com/alexpfx/go_common v0.0.3/go.mod h1:+9XDUymLIbPg7OhQx0V9bthcRwoTEGuUPU05P6AzwPI=
 github.com/alexpfx/golang v0.0.0-20201124023054-6b10526aa5cd h1:XibR5b6J2v+hofBfs7wmtpPHd1+KEVQWhnZSan78M7k=
 github.com/alexpfx/golang v0.0.0-20201127125143-a975ae98e7ec h1:9HxpSPO0amWmP0WesstQZqYd3USjYosDd9dQ9NAL4Dk=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=

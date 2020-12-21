@@ -1,10 +1,11 @@
 package merge
 
 import (
-	"github.com/tidwall/gjson"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 var startWithDot = regexp.MustCompile(`\.[^\s]+`)
@@ -41,6 +42,7 @@ func FormatJson(input interface{}) string {
 
 func FormatAuto(input interface{}) string {
 	r := input.([]MRResult)
+	
 
 	sb := strings.Builder{}
 	for _, result := range r {

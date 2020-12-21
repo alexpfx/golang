@@ -43,15 +43,29 @@ func main() {
 				Usage: "obtém uma massa do catálogo e ambiente",
 				Action: func(context *cli.Context) error {
 					getter := massa.NewRetriever()
-					massa, err := getter.Older(context.Int("catalogo"), context.Int("ambiente"))
+
+					var novaMassa massa.Massa
+					var err error
+					if context.Bool("oldest"){
+						novaMassa, err = getter.Oldest(context.Int("catalogo"), context.Int("ambiente"))
+					}else{
+						novaMassa, err = getter.Newest(context.Int("catalogo"), context.Int("ambiente"))
+					}
+
 					if err != nil {
 						return err
 					}
-					fmt.Println(ToJsonStr(massa))
+					fmt.Println(ToJsonStr(novaMassa))
 					return nil
 
 				},
 				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "oldest",
+						Aliases: []string{"o"},
+						Usage:   "obtém a massa mais antigo, em vez da mais recente",
+						Value:   false,
+					},
 					&cli.IntFlag{
 						Name:    "ambiente",
 						Aliases: []string{"a"},

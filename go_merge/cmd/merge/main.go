@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/alexpfx/golang/go_merge/internal/merge"
-	"github.com/alexpfx/golang/go_merge/internal/slices"
 	"log"
 	"os"
 )
@@ -56,6 +55,7 @@ func main() {
 
 		if err != nil {
 			log.Fatal(err.Error())
+			
 		}
 
 		ids, err := merge.ParseIds(fetchCmd.Args())
@@ -63,7 +63,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		ids = slices.IntUniqueSorted(ids)
+		//ids = slices.IntUniqueSorted(ids)
 
 		checkIdsCount(ids)
 		token := checkToken()
