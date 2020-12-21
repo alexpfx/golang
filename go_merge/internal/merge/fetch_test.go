@@ -235,6 +235,7 @@ func Test_ParseIds(t *testing.T) {
 			},
 			wantErr: false,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 		},
 		{
 			name: "t3 - varios ids e ranges, validos e invalidos",
@@ -255,6 +256,8 @@ func Test_ParseIds(t *testing.T) {
 				7001, 7002, 2004, 2005, 1111, 22, 23,
 			},
 			wantErr: false,
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 		},

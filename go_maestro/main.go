@@ -73,7 +73,7 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 				//callRofi(afterFormatStr, "i")
 			}
 		} else {
-			callRofiMessage(cmd.Binary, afterFormatStr)
+			//callRofiMessage(cmd.Binary, afterFormatStr)
 		}
 
 		if cmd.CopyOutput {
