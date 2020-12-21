@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/alexpfx/golang/go_massa/internal/massa"
-	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+	"github.com/alexpfx/go_common/str"
+	"github.com/alexpfx/golang/go_massa/internal/massa"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -30,7 +30,11 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println(ToJsonStr(catalogos))
+					jsonStr, err := str.FormatJson(catalogos)
+					if (err != nil){
+						log.Fatal(err.Error())
+					}
+					fmt.Println(jsonStr)
 					return nil
 				},
 			},
@@ -84,11 +88,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-}
-func ToJsonStr(results interface{}) string {
-	bytes, err := json.MarshalIndent(results, "", "   ")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return string(bytes)
 }
