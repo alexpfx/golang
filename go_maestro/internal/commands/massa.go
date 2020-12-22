@@ -9,7 +9,7 @@ func MassaListaCatalogos() Cmd {
 		Name:       "Massa-Sibe: Lista catálogos",
 		Desc:       "Lista de Catálogos (CNIS HOM)",
 		Args:       []string{"list", "-a", "2"},
-		UserInput:  map[string]string{},
+		UserInput:  nil,
 		CopyOutput: false,
 		FormatOutput: []string{
 			"#.id", "#.nome",

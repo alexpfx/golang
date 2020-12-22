@@ -30,7 +30,7 @@ func Filter(jsonInput string, filter []string) string {
 		for i, v := range m {
 			m[i] = clear(filter, v)
 		}
-		fmt.Println("%v", m)
+		fmt.Printf("%v\n", m)
 
 		marshal, _ := json.Marshal(m)
 		return string(marshal)
