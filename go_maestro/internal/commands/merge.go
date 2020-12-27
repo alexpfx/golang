@@ -1,9 +1,33 @@
 package commands
 
 import (
+	"github.com/alexpfx/go_common/cmd"
+	"github.com/alexpfx/go_common/user"
 	"github.com/alexpfx/golang/go_maestro/internal/output"
 	"strings"
 )
+
+func NewMergeFetch() cmd.Cmd {
+	input := cmd.Input{
+		InputList: user.MultiInput{
+			ArgSep: " ",
+		},
+		Reader: user.ClipInputReader{},
+	}
+
+	c := cmd.Cmd{
+		Binary: cmd.Binary{
+			CmdPath: "go_merge",
+			Name:    "Merge Info",
+			Desc:    "Obtém informações sobre um merge request",
+			FixArgs: []string{"info"},
+		},
+		Input: input,
+	}
+
+	return c
+
+}
 
 func MergeFetch() Cmd {
 	defaultFmt := []string{

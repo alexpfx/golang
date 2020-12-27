@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/alexpfx/go_common/cmd"
+	"github.com/alexpfx/go_common/exception"
+	rofi2 "github.com/alexpfx/go_common/rofi"
 	"github.com/alexpfx/golang/go_maestro/internal/commands"
 	"github.com/alexpfx/golang/go_maestro/internal/output"
 	clip "github.com/atotto/clipboard"
-	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -16,29 +18,51 @@ import (
 
 func main() {
 
-	cmds := []commands.Cmd{
-		commands.NewMassaCnisHomCat8(),
-		commands.MergeFetch(),
-		commands.MassaListaCatalogos(),
-		commands.SibeSibeDeploy(),
-		commands.SibeSibeClient(),
-		commands.QuickFixQuery(),
+	newCmds := []cmd.Cmd{
+		commands.NewMergeFetch(),
 	}
 
-	rofiOutput := callRofi(buildRofiFromCmds(cmds), "i")
-	index, _ := strconv.Atoi(strings.TrimRight(rofiOutput, "\n"))
-	chosenCmd := parseChosenCmd(index, cmds)
+	menu := buildMenu(newCmds)
+	selected := callRofiMenu(menu, "i")
+	index, _ := strconv.Atoi(strings.TrimRight(selected, "\n"))
+	cmd := newCmds[index]
 
-	if chosenCmd == nil {
-		return
+	res, err := cmd.Run()
+	exception.CheckThrow(err)
+
+	fmt.Printf("resposta: %v", res)
+	/*
+		cmds := []commands.Cmd{
+			commands.NewMassaCnisHomCat8(),
+			commands.MergeFetch(),
+			commands.MassaListaCatalogos(),
+			commands.SibeSibeDeploy(),
+			commands.SibeSibeClient(),
+			commands.QuickFixQuery(),
+		}
+
+		rofiOutput := callRofiMenu(buildRofiMenu(cmds), "i")
+		//index, _ := strconv.Atoi(strings.TrimRight(rofiOutput, "\n"))
+		chosenCmd := parseChosenCmd(index, cmds)
+
+		if chosenCmd == nil {
+			return
+		}
+
+		var ua []string
+		if len(chosenCmd.UserInput) != 0 {
+			ua = appendUserArgs(chosenCmd)
+		}
+		callCmd(chosenCmd, ua)
+	*/
+}
+
+func buildMenu(cmds []cmd.Cmd) string {
+	var sb strings.Builder
+	for i, c := range cmds {
+		sb.WriteString(fmt.Sprintf("%d - %s: %s", i+1, c.Binary.Name, c.Binary.Desc))
 	}
-
-	var ua []string
-	if len(chosenCmd.UserInput) != 0 {
-		ua = appendUserArgs(chosenCmd)
-	}
-	callCmd(chosenCmd, ua)
-
+	return sb.String()
 }
 
 func callCmd(cmd *commands.Cmd, ua []string) {
@@ -69,7 +93,7 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 					callRofiWithCmd(afterFormatStr, cmd.OutputConverter, cmd)
 				}
 			} else {
-				//callRofi(afterFormatStr, "i")
+				//callRofiMenu(afterFormatStr, "i")
 			}
 		} else {
 			//callRofiMessage(cmd.Binary, afterFormatStr)
@@ -127,44 +151,28 @@ func appendUserArgs(chosenCmd *commands.Cmd) []string {
 }
 
 func callRofiMessage(title, msg string) {
-	rofi := exec.Command("rofi", "-e", fmt.Sprintf("%s:\n\n%s", title, msg))
-	_ = rofi.Run()
+	rofi2.NewMessage(fmt.Sprintf("%s:\n\n%s", title, msg))
 }
 
 func callRofiWithCmd(rofiMenu string, converter func(string) (string, []string), cmd *commands.Cmd) {
-	out := callRofi(rofiMenu, "s")
+	out := callRofiMenu(rofiMenu, "s")
 
 	_, args := converter(out)
 	nextCmd := cmd.CallNext(args...)
 	callCmd(nextCmd, []string{})
 }
 
-func callRofi(rofiMenu string, format string) string {
-	rofi := exec.Command("rofi", "-i", "-dmenu", "-multi-select", "-p", "selecione", "-format", format)
-
-	stdin, err := rofi.StdinPipe()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	go func() {
-		defer stdin.Close()
-		_, _ = io.WriteString(stdin, rofiMenu)
-	}()
-
-	out, err := rofi.CombinedOutput()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return string(out)
-
+func callRofiMenu(rofiMenu string, format string) string {
+	dMenu := rofi2.NewDMemuBuilder().Format(format).Prompt("selecione").Build()
+	out, _ := dMenu.Exec(rofiMenu)
+	return out
 }
 
 func parseChosenCmd(index int, list []commands.Cmd) *commands.Cmd {
 	return &list[index]
 }
 
-func buildRofiFromCmds(cmdList []commands.Cmd) string {
+func buildRofiMenu(cmdList []commands.Cmd) string {
 	rofiMenu := strings.Builder{}
 
 	max := 0
