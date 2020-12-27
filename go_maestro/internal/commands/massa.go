@@ -1,6 +1,8 @@
 package commands
 
-import "strings"
+import (
+	"strings"
+)
 
 func MassaListaCatalogos() Cmd {
 
@@ -40,6 +42,7 @@ func NewMassaCnisFromCustomCat(args ...string) *Cmd {
 	}
 
 }
+
 
 func NewMassaCnisHomCat8() Cmd {
 	return Cmd{
