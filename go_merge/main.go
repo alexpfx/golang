@@ -13,6 +13,7 @@ const baseUrl = "https://www-scm.prevnet/api/v3/projects"
 const sibeProject = "754"
 
 func main() {
+	log.Println("iniciando go_merge")
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
@@ -54,11 +55,12 @@ func main() {
 					if err != nil {
 						fmt.Println(err)
 					}
-					if len(er) > 0 {
-						fmt.Println("Invalidos: ")
+					if len(er) > 0 && len(mrInfo) == 0 {
+						res := make([]string, 0)
 						for _, result := range er {
-							fmt.Printf("%d: %v", result.MergeId, result.Err)
+							res = append(res, fmt.Sprintf("%d : %s", result.MergeId, result.Err))
 						}
+						return fmt.Errorf("nenhum MR foi retornado. \ninválidos: %v", res)
 					}
 
 					formatedOutput := merge.FormatOutput(mrInfo, merge.FormatJson)
@@ -72,7 +74,8 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("erro na chamada a %v: \n%v", os.Args[0], err.Error())
+
 	}
 }
 

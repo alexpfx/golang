@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/alexpfx/go_common/cmd"
-	"github.com/alexpfx/go_common/exception"
 	rofi2 "github.com/alexpfx/go_common/rofi"
 	"github.com/alexpfx/golang/go_maestro/internal/commands"
 	"github.com/alexpfx/golang/go_maestro/internal/output"
@@ -19,7 +18,7 @@ import (
 func main() {
 
 	newCmds := []cmd.Cmd{
-		commands.NewMergeFetch(),
+		commands.MergeInfo(),
 	}
 
 	menu := buildMenu(newCmds)
@@ -28,9 +27,14 @@ func main() {
 	cmd := newCmds[index]
 
 	res, err := cmd.Run()
-	exception.CheckThrow(err)
+
+	//exception.CheckThrow(err)
 
 	fmt.Printf("resposta: %v", res)
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+
 	/*
 		cmds := []commands.Cmd{
 			commands.NewMassaCnisHomCat8(),

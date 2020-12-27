@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func NewMergeFetch() cmd.Cmd {
+func MergeInfo() cmd.Cmd {
 	input := cmd.Input{
 		InputList: user.MultiInput{
 			ArgSep: " ",
