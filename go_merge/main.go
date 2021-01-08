@@ -48,6 +48,9 @@ func main() {
 					author := c.String("author")
 					targetBranch := c.String("targetBranch")
 					token := c.String("token")
+					if token == "" {
+						return fmt.Errorf("faltando variável de ambiente: PRIVATE_TOKEN")
+					}
 
 					filter := mapFilter(author, targetBranch)
 					mrInfo, er, err := merge.Fetch(token, baseUrl, sibeProject, ids, filter)
@@ -72,7 +75,8 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 

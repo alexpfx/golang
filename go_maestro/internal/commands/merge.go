@@ -23,6 +23,7 @@ func NewMergeFetch() cmd.Cmd {
 			FixArgs: []string{"info"},
 		},
 		Input: input,
+
 	}
 
 	return c

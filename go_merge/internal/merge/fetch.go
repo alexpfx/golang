@@ -157,7 +157,7 @@ func Fetch(token, baseUrl, project string, mrs []int, filter map[string]string) 
 		body, _ := ioutil.ReadAll(resp.Body)
 		err = json.Unmarshal(body, &merges)
 		if err != nil {
-			errOut := fmt.Errorf("erro na conversão de objeto para json: %d", mrId)
+			errOut := fmt.Errorf("erro na conversão de objeto para json: %d %v", mrId, err)
 			errMrList = appendError(errMrList, mrId, errOut.Error())
 			continue
 		}

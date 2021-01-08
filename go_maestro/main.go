@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/alexpfx/go_common/cmd"
-	"github.com/alexpfx/go_common/exception"
 	rofi2 "github.com/alexpfx/go_common/rofi"
 	"github.com/alexpfx/golang/go_maestro/internal/commands"
 	"github.com/alexpfx/golang/go_maestro/internal/output"
@@ -28,13 +27,18 @@ func main() {
 	cmd := newCmds[index]
 
 	res, err := cmd.Run()
-	exception.CheckThrow(err)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	//exception.CheckThrow(err)
 
 	fmt.Printf("resposta: %v", res)
 	/*
 		cmds := []commands.Cmd{
 			commands.NewMassaCnisHomCat8(),
-			commands.MergeFetch(),
+			commands.MergeFetch(),'
 			commands.MassaListaCatalogos(),
 			commands.SibeSibeDeploy(),
 			commands.SibeSibeClient(),
