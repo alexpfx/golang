@@ -100,7 +100,7 @@ func validateRange(arg string) (valid bool, first, last int) {
 	valid = false
 
 	splitted := strings.Split(arg, ":")
-	mi := splitted[0]
+	mi := splitfted[0]
 	mf := splitted[1]
 
 	first, err := strconv.Atoi(mi)

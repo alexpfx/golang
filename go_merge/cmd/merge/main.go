@@ -27,7 +27,7 @@ func main() {
 	outputFlags := map[string]*bool{
 		"dev":  new(bool),
 		"hom":  new(bool),
-		"auto": new(bool),
+		"auto": new (bool),
 		"json": new(bool),
 	}
 

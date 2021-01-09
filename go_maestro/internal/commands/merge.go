@@ -22,12 +22,9 @@ func NewMergeFetch() cmd.Cmd {
 			Desc:    "Obtém informações sobre um merge request",
 			FixArgs: []string{"info"},
 		},
-		Input: input,
-
+		UserInput: input,
 	}
-
 	return c
-
 }
 
 func MergeFetch() Cmd {
