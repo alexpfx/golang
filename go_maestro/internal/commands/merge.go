@@ -7,6 +7,19 @@ import (
 	"strings"
 )
 
+func NewXSel() *cmd.Cmd{
+	return &cmd.Cmd{
+		Binary:    cmd.Binary{
+			CmdPath: "xsel",
+			FixArgs: []string{"-b"},
+		},
+		Pipe:      true,
+		Converter: func(bytes []byte) ([]byte, error) {
+			return bytes, nil
+		},
+	}
+}
+
 func NewMergeFetch() cmd.Cmd {
 	input := cmd.Input{
 		InputList: user.MultiInput{
@@ -22,7 +35,8 @@ func NewMergeFetch() cmd.Cmd {
 			Desc:    "Obtém informações sobre um merge request",
 			FixArgs: []string{"info"},
 		},
-		UserInput: input,
+		UserInput: &input,
+		Next: NewXSel(),
 	}
 	return c
 }

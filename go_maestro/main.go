@@ -24,9 +24,9 @@ func main() {
 	menu := buildMenu(newCmds)
 	selected := callRofiMenu(menu, "i")
 	index, _ := strconv.Atoi(strings.TrimRight(selected, "\n"))
-	cmd := newCmds[index]
+	xc := newCmds[index]
 
-	res, err := cmd.Run()
+	res, err := cmd.Run(&xc)
 
 	if err != nil {
 		fmt.Println(err)
@@ -34,7 +34,7 @@ func main() {
 	}
 	//exception.CheckThrow(err)
 
-	fmt.Printf("resposta: %v", res)
+	fmt.Printf("resposta: %v", string(res))
 	/*
 		cmds := []commands.Cmd{
 			commands.NewMassaCnisHomCat8(),
