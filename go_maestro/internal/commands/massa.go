@@ -1,8 +1,34 @@
 package commands
 
 import (
+	"github.com/alexpfx/go_common/cmd"
+	"github.com/alexpfx/go_common/user"
 	"strings"
 )
+
+func NewGoMassaCustomInput() cmd.Cmd {
+	input := &cmd.Input{
+		InputList: user.MultiInput{
+			Keys:   []string{"-c"},
+			ArgSep: " ",
+		},
+		Reader: user.ClipInputReader{},
+	}
+
+	c := cmd.Cmd{
+		Binary: cmd.Binary{
+			CmdPath: "go_massa",
+			Name:    "Massa X",
+			Desc:    "Obtém massa Cnis com catálogo customizado",
+			FixArgs: []string{"get", "-a", "2"},
+		},
+		UserInput: input,
+		Next:      nil,
+		Converter: nil,
+	}
+
+	return c
+}
 
 func MassaListaCatalogos() Cmd {
 
@@ -42,7 +68,6 @@ func NewMassaCnisFromCustomCat(args ...string) *Cmd {
 	}
 
 }
-
 
 func NewMassaCnisHomCat8() Cmd {
 	return Cmd{

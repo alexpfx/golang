@@ -18,6 +18,7 @@ import (
 func main() {
 
 	newCmds := []cmd.Cmd{
+		commands.NewGoMassaCustomInput(),
 		commands.NewMergeFetch(),
 	}
 
@@ -26,45 +27,22 @@ func main() {
 	index, _ := strconv.Atoi(strings.TrimRight(selected, "\n"))
 	xc := newCmds[index]
 
-	res, err := cmd.Run(&xc)
+ 	res, err := cmd.Run(&xc)
 
 	if err != nil {
 		fmt.Println(err)
+		callRofiMessage(err.Error())
 		os.Exit(1)
 	}
 	//exception.CheckThrow(err)
 
-	fmt.Printf("resposta: %v", string(res))
-	/*
-		cmds := []commands.Cmd{
-			commands.NewMassaCnisHomCat8(),
-			commands.MergeFetch(),'
-			commands.MassaListaCatalogos(),
-			commands.SibeSibeDeploy(),
-			commands.SibeSibeClient(),
-			commands.QuickFixQuery(),
-		}
-
-		rofiOutput := callRofiMenu(buildRofiMenu(cmds), "i")
-		//index, _ := strconv.Atoi(strings.TrimRight(rofiOutput, "\n"))
-		chosenCmd := parseChosenCmd(index, cmds)
-
-		if chosenCmd == nil {
-			return
-		}
-
-		var ua []string
-		if len(chosenCmd.UserInput) != 0 {
-			ua = appendUserArgs(chosenCmd)
-		}
-		callCmd(chosenCmd, ua)
-	*/
+	fmt.Printf("result: %s", string(res))
 }
 
 func buildMenu(cmds []cmd.Cmd) string {
 	var sb strings.Builder
 	for i, c := range cmds {
-		sb.WriteString(fmt.Sprintf("%d - %s: %s", i+1, c.Binary.Name, c.Binary.Desc))
+		sb.WriteString(fmt.Sprintf("%d - %s: %s\n", i+1, c.Binary.Name, c.Binary.Desc))
 	}
 	return sb.String()
 }
@@ -84,7 +62,7 @@ func callCmd(cmd *commands.Cmd, ua []string) {
 	err := command.Run()
 	outStr, errStr := string(stdOut.Bytes()), string(stdErr.Bytes())
 	if err != nil {
-		callRofiMessage(cmd.Binary, errStr)
+		callRofiMessage(errStr)
 		log.Fatal(err.Error())
 	}
 
@@ -154,9 +132,7 @@ func appendUserArgs(chosenCmd *commands.Cmd) []string {
 	return moreArgs
 }
 
-func callRofiMessage(title, msg string) {
-	rofi2.NewMessage(fmt.Sprintf("%s:\n\n%s", title, msg))
-}
+
 
 func callRofiWithCmd(rofiMenu string, converter func(string) (string, []string), cmd *commands.Cmd) {
 	out := callRofiMenu(rofiMenu, "s")
@@ -170,6 +146,12 @@ func callRofiMenu(rofiMenu string, format string) string {
 	dMenu := rofi2.NewDMemuBuilder().Format(format).Prompt("selecione").Build()
 	out, _ := dMenu.Exec(rofiMenu)
 	return out
+}
+
+func callRofiMessage(msg string) {
+	message := rofi2.NewMessage(fmt.Sprintf("%s:\n", msg))
+	message.Exec(msg)
+
 }
 
 func parseChosenCmd(index int, list []commands.Cmd) *commands.Cmd {

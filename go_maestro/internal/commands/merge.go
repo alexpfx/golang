@@ -7,18 +7,9 @@ import (
 	"strings"
 )
 
-func NewXSel() *cmd.Cmd{
-	return &cmd.Cmd{
-		Binary:    cmd.Binary{
-			CmdPath: "xsel",
-			FixArgs: []string{"-b"},
-		},
-		Pipe:      true,
-		Converter: func(bytes []byte) ([]byte, error) {
-			return bytes, nil
-		},
-	}
-}
+
+
+
 
 func NewMergeFetch() cmd.Cmd {
 	input := cmd.Input{

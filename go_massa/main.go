@@ -55,7 +55,11 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println(str.FormatJson(novaMassa))
+					json, err := str.FormatJson(novaMassa)
+					if err != nil{
+						return err
+					}
+					fmt.Println(json)
 					return nil
 
 				},
