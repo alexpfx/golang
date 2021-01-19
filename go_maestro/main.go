@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"github.com/alexpfx/go_common/cmd"
 	rofi2 "github.com/alexpfx/go_common/rofi"
@@ -15,19 +16,43 @@ import (
 	"strings"
 )
 
-func main() {
+var isHelp bool
+var command string
 
-	newCmds := []cmd.Cmd{
-		commands.NewGoMassaCustomInput(),
-		commands.NewMergeFetch(),
+func main() {
+	flag.BoolVar(&isHelp, "help", false, "imprimir a ajuda")
+	flag.StringVar(&command, "c", "", "especifica o comando a ser executado, em vez de montar o menu com todas as opções disponíveis")
+
+	flag.Parse()
+	if isHelp {
+		flag.PrintDefaults()
+		os.Exit(0)
 	}
 
-	menu := buildMenu(newCmds)
-	selected := callRofiMenu(menu, "i")
+	newCmds := []*cmd.Cmd{
+		commands.NewGoMassaCustomInput(),
+		commands.NewMergeFetch(),
+		commands.NewSelectMonitor("monitor_left", "HDMI1"),
+		commands.NewSelectMonitor("monitor_right", "DP1"),
+		commands.NewSelectMonitor("monitor_center", "HDMI2"),
+	}
+
+	var menu string
+	var selected string
+	if command == "" {
+		menu = buildMenu(newCmds)
+		selected = callRofiMenu(menu, "i")
+	} else {
+		selected = findByIdentifier(command, newCmds)
+		if selected == "" {
+			log.Fatalf("comando não encontrado: %s", command)
+		}
+	}
+
 	index, _ := strconv.Atoi(strings.TrimRight(selected, "\n"))
 	xc := newCmds[index]
 
- 	res, err := cmd.Run(&xc)
+	res, err := cmd.Run(xc)
 
 	if err != nil {
 		fmt.Println(err)
@@ -39,10 +64,28 @@ func main() {
 	fmt.Printf("result: %s", string(res))
 }
 
-func buildMenu(cmds []cmd.Cmd) string {
+func findByIdentifier(c string, cmds []*cmd.Cmd) string {
+	for i, cmd := range cmds {
+		if cmd.Identifier == c {
+			return strconv.Itoa(i)
+		}
+	}
+	return ""
+
+}
+
+func buildMenu(cmds []*cmd.Cmd) string {
 	var sb strings.Builder
 	for i, c := range cmds {
-		sb.WriteString(fmt.Sprintf("%d - %s: %s\n", i+1, c.Binary.Name, c.Binary.Desc))
+		formatName := "%d - %s\n"
+		formatDesc := "%d - %s: %s\n"
+
+		if c.Binary.Desc != "" {
+			sb.WriteString(fmt.Sprintf(formatName, i+1, c.Binary.Name))
+		} else {
+			sb.WriteString(fmt.Sprintf(formatDesc, i+1, c.Binary.Name, c.Binary.Desc))
+		}
+
 	}
 	return sb.String()
 }
@@ -131,8 +174,6 @@ func appendUserArgs(chosenCmd *commands.Cmd) []string {
 	}
 	return moreArgs
 }
-
-
 
 func callRofiWithCmd(rofiMenu string, converter func(string) (string, []string), cmd *commands.Cmd) {
 	out := callRofiMenu(rofiMenu, "s")

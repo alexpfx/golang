@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func NewGoMassaCustomInput() cmd.Cmd {
+func NewGoMassaCustomInput() *cmd.Cmd {
 	input := &cmd.Input{
 		InputList: user.MultiInput{
 			Keys:   []string{"-c"},
@@ -23,11 +23,9 @@ func NewGoMassaCustomInput() cmd.Cmd {
 			FixArgs: []string{"get", "-a", "2"},
 		},
 		UserInput: input,
-		Next:      nil,
-		Converter: nil,
 	}
 
-	return c
+	return &c
 }
 
 func MassaListaCatalogos() Cmd {
