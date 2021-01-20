@@ -29,13 +29,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	newCmds := []*cmd.Cmd{
-		commands.NewGoMassaCustomInput(),
-		commands.NewMergeFetch(),
-		commands.NewSelectMonitor("monitor_left", "HDMI1"),
-		commands.NewSelectMonitor("monitor_right", "DP1"),
-		commands.NewSelectMonitor("monitor_center", "HDMI2"),
-	}
+	newCmds := append(commands.FocusMonitor(), commands.NewGoMassaCustomInput(),
+		commands.NewMergeFetch())
 
 	var menu string
 	var selected string
@@ -50,23 +45,25 @@ func main() {
 	}
 
 	index, _ := strconv.Atoi(strings.TrimRight(selected, "\n"))
-	xc := newCmds[index]
+	xc := &newCmds[index]
 
 	res, err := cmd.Run(xc)
-
 	if err != nil {
-		fmt.Println(err)
-		callRofiMessage(err.Error())
-		os.Exit(1)
+		fmt.Printf("%T\n", err.Error())
+		fmt.Printf("%s\n", err.Error())
+		//callRofiMessage(err.Error())
+		return
 	}
 	//exception.CheckThrow(err)
 
 	fmt.Printf("result: %s", string(res))
 }
 
-func findByIdentifier(c string, cmds []*cmd.Cmd) string {
+func findByIdentifier(c string, cmds []cmd.Cmd) string {
+
 	for i, cmd := range cmds {
-		if cmd.Identifier == c {
+		fmt.Println(cmd.Identifier)
+		if strings.EqualFold(cmd.Identifier, c) {
 			return strconv.Itoa(i)
 		}
 	}
@@ -74,7 +71,7 @@ func findByIdentifier(c string, cmds []*cmd.Cmd) string {
 
 }
 
-func buildMenu(cmds []*cmd.Cmd) string {
+func buildMenu(cmds []cmd.Cmd) string {
 	var sb strings.Builder
 	for i, c := range cmds {
 		formatName := "%d - %s\n"

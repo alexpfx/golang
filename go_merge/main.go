@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 )
-
+const version = "0.0.1+2"
 const baseUrl = "https://www-scm.prevnet/api/v3/projects"
 const sibeProject = "754"
 
@@ -16,15 +16,28 @@ func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
+				Name: "version",
+				Action: func(c *cli.Context) error {
+					print(version)
+
+
+
+					return nil
+				},
+			},
+			{
 				Name: "info",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "author",
 						Usage: "filtro por autor",
+						Aliases: []string{"a"},
 					},
 					&cli.StringFlag{
 						Name:  "targetBranch",
 						Usage: "filtro por target branch",
+						Aliases: []string{"b"},
+
 					},
 					&cli.StringFlag{
 						Name:    "token",
@@ -32,6 +45,7 @@ func main() {
 						EnvVars: []string{"PRIVATE_TOKEN"},
 					},
 				},
+				ArgsUsage: "mergeId ou mergeIdInicial",
 
 				Action: func(c *cli.Context) error {
 					if c.NArg() < 1 {
@@ -64,7 +78,7 @@ func main() {
 						}
 					}
 
-					formatedOutput := merge.FormatOutput(mrInfo, merge.FormatJson)
+					formatedOutput := merge.FormatOutput(mrInfo, merge.FormatDev)
 					fmt.Println(formatedOutput)
 
 					return nil
@@ -72,6 +86,8 @@ func main() {
 			},
 		},
 	}
+
+
 
 	err := app.Run(os.Args)
 	if err != nil {
@@ -81,7 +97,7 @@ func main() {
 }
 
 func checkIdsCount(ids []int) {
-	if len(ids) > 50 {
+	if len(ids) > 120 {
 		err := fmt.Errorf("máximo de %v ids por chamada", 50)
 		log.Fatal(err)
 	}

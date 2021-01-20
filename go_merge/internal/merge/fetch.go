@@ -19,7 +19,7 @@ const mergeRequestsPath = "merge_requests"
 const mergeRequestQuery = "?iid="
 const commitsPath = "repository/commits"
 
-var colonInMid = regexp.MustCompile(`[0-9]+:[0-9]+`)
+var colonInMid = regexp.MustCompile(`[0-9]+[:|-][0-9]+`)
 
 // args:
 // cmd <url> <url>
@@ -99,8 +99,12 @@ func buildRange(first int, last int) []int {
 func validateRange(arg string) (valid bool, first, last int) {
 	valid = false
 
-	splitted := strings.Split(arg, ":")
-	mi := splitfted[0]
+	var splitted []string
+	splitted = strings.Split(arg, ":")
+	if len(splitted) != 2 {
+		splitted = strings.Split(arg, "-")
+	}
+	mi := splitted[0]
 	mf := splitted[1]
 
 	first, err := strconv.Atoi(mi)
@@ -192,24 +196,25 @@ func addOrDiscard(baseUrl string, project string, merge Merge, mrList []MRResult
 
 		if strings.EqualFold(k, "author") {
 			if merge.Author.Username != v {
-				continue
+				return mrList, nil
 			}
 		}
 		if strings.EqualFold(k, "target_branch") {
 			if !strings.EqualFold(v, merge.TargetBranch) {
-				continue
+				return mrList, nil
 			}
 		}
-		// filtros
-		commit, err := fetchCommit(baseUrl, project, merge.MergeCommitSha, token)
-		if err != nil {
-			return mrList, err
-		}
-		return appendResult(mrList, merge, commit), nil
 	}
 
-	return mrList, nil
+	if merge.MergeCommitSha == "" {
+		return mrList, nil
+	} // filtros
 
+	commit, err := fetchCommit(baseUrl, project, merge.MergeCommitSha, token)
+	if err != nil {
+		return mrList, err
+	}
+	return appendResult(mrList, merge, commit), nil
 }
 
 func createRequest(url string, token string) *http.Request {
