@@ -1,0 +1,15 @@
+{
+  "situacao": 1,
+  "documentos": [
+    {
+      "nome": "NB",
+      "conteudo": "7009010944"
+    },
+    {
+      "nome": "NR",
+      "conteudo": "2077252"
+    }
+  ],
+  "mensagensInternas": [],
+  "mensagensExternas": []
+}

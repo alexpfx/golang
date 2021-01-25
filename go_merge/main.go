@@ -19,10 +19,7 @@ func main() {
 				Name: "version",
 				Action: func(c *cli.Context) error {
 					print(version)
-
-
-
-					return nil
+				return nil
 				},
 			},
 			{
