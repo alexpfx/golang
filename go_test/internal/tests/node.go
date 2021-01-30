@@ -1,7 +1,14 @@
 package tests
 
+type NodeType int
+
+const (
+	Input NodeType = 1 << iota
+	Output
+)
+
 type Node struct {
-	Type int       `json:"type"`
-	Vars [] string `json:"variable"`
-	Json string    `json:"json"`
+	Type NodeType `json:"type"`
+	Vars []string `json:"variable"`
+	Json string   `json:"json"`
 }

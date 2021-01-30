@@ -17,8 +17,8 @@ func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:    "node",
-				Usage:   "gera um nodo de teste de forma interativa",
+				Name:  "node",
+				Usage: "gera um nodo de teste de forma interativa",
 
 				Flags: []cli.Flag{
 					&cli.StringFlag{
@@ -74,8 +74,11 @@ func main() {
 					var outputVarFields []string
 					outputVarFields = promptVars(jsonOutput)
 
-					nodeInput := createTestNode(inputVariableFields, jsonInput, 0)
-					nodeOutput := createTestNode(outputVarFields, jsonOutput, 1)
+					nodeInput := createTestNode(inputVariableFields, jsonInput, tests.Input)
+					nodeOutput := createTestNode(outputVarFields, jsonOutput, tests.Output)
+
+					err = writeNode(rootDirectory, testName, nodeInput)
+					err = writeNode(rootDirectory, testName, nodeOutput)
 
 					fmt.Printf("input %v\n", nodeInput)
 					fmt.Printf("output %v\n", nodeOutput)
@@ -92,7 +95,29 @@ func main() {
 	}
 }
 
-func createTestNode(varFields []string, jsMap map[string]interface{}, t int) tests.Node {
+func writeNode(rootDir string, testName string, node tests.Node) error {
+	var filename string
+	if node.Type == tests.Input {
+		filename = "input_" + testName + ".json"
+	} else if node.Type == tests.Output {
+		filename = "output_" + testName + ".json"
+	} else {
+		return nil
+	}
+
+	jsonStr, err := json.MarshalIndent(node, "", "    ")
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(rootDir+filename, jsonStr, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createTestNode(varFields []string, jsMap map[string]interface{}, t tests.NodeType) tests.Node {
 	jsBytes, _ := json.Marshal(jsMap)
 
 	return tests.Node{
@@ -121,19 +146,19 @@ func promptVars(input map[string]interface{}) []string {
 func traverseMap(key string, m map[string]interface{}) []string {
 	res := make([]string, 0)
 
-	for k, v := range m {
-		kind := reflect.ValueOf(v).Kind()
-		var tk string
+	for ikey, ivalue := range m {
+		kind := reflect.ValueOf(ivalue).Kind()
+		var rkey string
 
 		if key != "" {
-			tk = strings.Join([]string{key, k}, "/")
+			rkey = strings.Join([]string{key, ikey}, "/")
 		} else {
-			tk = k
+			rkey = ikey
 		}
 		if kind == reflect.Map {
-			res = append(res, traverseMap(tk, v.(map[string]interface{}))...)
+			res = append(res, traverseMap(rkey, ivalue.(map[string]interface{}))...)
 		} else {
-			res = append(res, tk)
+			res = append(res, rkey)
 		}
 	}
 
