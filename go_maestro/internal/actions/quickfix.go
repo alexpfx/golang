@@ -1,14 +1,14 @@
-package commands
+package actions
 
 const quickFixBinary = "go_quickfix"
 
-func QuickFixExecute() Cmd {
+/*func QuickFixExecute() Cmd {
 	return Cmd{
 		Binary:              quickFixBinary,
 		Name:                "Executa",
 		Desc:                "",
 		Args:                []string{},
-		UserInput:           nil,
+		InputConfig:           nil,
 		CopyOutput:          false,
 		FilterOutput:        nil,
 		FormatOutput:        nil,
@@ -17,15 +17,15 @@ func QuickFixExecute() Cmd {
 		CallNext:            nil,
 	}
 
-}
+}*/
 
-func QuickFixQuery() Cmd {
+/*func QuickFixQuery() Cmd {
 	return Cmd{
 		Binary:              quickFixBinary,
 		Name:                "Quick fix",
 		Desc:                "Quick fix query",
 		Args:                []string{"--query"},
-		UserInput:           map[string]string{"query": ""},
+		InputConfig:           map[string]string{"query": ""},
 		FilterOutput:        nil,
 		FormatOutput:        []string{"#.name"},
 		DynamicFormatOutput: nil,
@@ -33,3 +33,4 @@ func QuickFixQuery() Cmd {
 		CallNext:            nil,
 	}
 }
+*/

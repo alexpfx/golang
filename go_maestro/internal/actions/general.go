@@ -1,57 +1,57 @@
-package commands
+package actions
 
 import (
-	"github.com/alexpfx/go_common/cmd"
+	"github.com/alexpfx/go_action/action"
 	"strings"
 )
 
-func NewXSel() *cmd.Cmd {
-	return &cmd.Cmd{
-		Binary: cmd.Binary{
+func NewXSel() *action.Action {
+	return &action.Action{
+		Binary: action.Binary{
 			CmdPath: "xsel",
 			FixArgs: []string{"-b"},
 		},
-		PipeIntoNext: true,
-		OutConverter: func(bytes []byte) ([]byte, error) {
+		InputFromPipe: true,
+		Converter: func(bytes []byte) ([]byte, error) {
 			return bytes, nil
 		},
 	}
 }
 
-var rofi = cmd.Binary{
+var rofi = action.Binary{
 	CmdPath: "rofi",
 	Name:    "",
 	Desc:    "",
 	FixArgs: []string{"-dmenu", "-sep", "\n", "-format", "s"},
 }
 
-var bspcNode = cmd.Binary{
+var bspcNode = action.Binary{
 	CmdPath: "bspc",
 	FixArgs: []string{"node"},
 }
 
-var bspcQuery = cmd.Binary{
+var bspcQuery = action.Binary{
 	CmdPath: "bspc",
 	Name:    "BSPC Query ",
 	Desc:    "",
 	FixArgs: []string{"query"},
 }
 
-func FocusMonitor() []cmd.Cmd {
+func FocusMonitor() []action.Action {
 	displays := getDisplays()
 
-	var bspcFocusDesktop = cmd.Binary{
+	var bspcFocusDesktop = action.Binary{
 		CmdPath: "bspc",
 		FixArgs: []string{"desktop", "-f"},
 	}
-	next := &cmd.Cmd{
+	next := &action.Action{
 		Binary: rofi,
-		Next: &cmd.Cmd{
+		Next: &action.Action{
 			Binary: bspcFocusDesktop,
 		},
 	}
 
-	res := make([]cmd.Cmd, 0)
+	res := make([]action.Action, 0)
 	for _, display := range displays {
 		selectMonitor := SelectMonitor(join("focus", display), display, next)
 		res = append(res, selectMonitor)
@@ -71,22 +71,22 @@ func getDisplays() []string {
 	}
 }
 
-func SelectMonitor(identifier, monitor string, next *cmd.Cmd) cmd.Cmd {
+func SelectMonitor(identifier, monitor string, next *action.Action) action.Action {
 
-	return cmd.Cmd{
-		Identifier:   identifier,
-		Binary:       bspcQuery,
-		Args:         []string{"-m", monitor, "--desktops", "--names"},
-		PipeIntoNext: true,
-		Next:         next,
-		OutConverter: nil,
+	return action.Action{
+		Identifier:    identifier,
+		Binary:        bspcQuery,
+		Args:          []string{"-m", monitor, "--desktops", "--names"},
+		InputFromPipe: true,
+		Next:          next,
+		Converter:     nil,
 	}
 }
 
-func NewJQ() *cmd.Cmd {
+func NewJQ() *action.Action {
 
-	return &cmd.Cmd{
-		Binary: cmd.Binary{
+	return &action.Action{
+		Binary: action.Binary{
 			CmdPath: "",
 			Name:    "",
 			Desc:    "",

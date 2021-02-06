@@ -1,6 +1,6 @@
-package commands
+package actions
 
-func SibeSibeDeploy() Cmd {
+/*func SibeSibeDeploy() Cmd {
 
 	massa := Cmd{
 		Binary:       "go_sibe",
@@ -26,3 +26,4 @@ func SibeSibeClient() Cmd {
 
 	return massa
 }
+*/

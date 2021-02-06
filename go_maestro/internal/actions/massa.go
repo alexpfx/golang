@@ -1,41 +1,40 @@
-package commands
+package actions
 
 import (
-	"github.com/alexpfx/go_common/cmd"
-	"github.com/alexpfx/go_common/user"
-	"strings"
+	"github.com/alexpfx/go_action/action"
+	"github.com/alexpfx/go_action/input"
 )
 
-func NewGoMassaCustomInput() cmd.Cmd {
-	input := &cmd.Input{
-		InputList: user.MultiInput{
+func NewGoMassaCustomInput() action.Action {
+	input := &action.InputConfig{
+		Config: input.Config{
 			Keys:   []string{"-c"},
 			ArgSep: " ",
 		},
-		Reader: user.ClipInputReader{},
+		Resolver: input.ClipResolver{},
 	}
 
-	c := cmd.Cmd{
-		Binary: cmd.Binary{
+	c := action.Action{
+		Binary: action.Binary{
 			CmdPath: "go_massa",
 			Name:    "Massa X",
 			Desc:    "Obtém massa Cnis com catálogo customizado",
 			FixArgs: []string{"get", "-a", "2"},
 		},
-		UserInput: input,
+		InputConfig: input,
 	}
 
 	return c
 }
 
-func MassaListaCatalogos() Cmd {
+/*func MassaListaCatalogos() action.Action {
 
-	massa := Cmd{
+	massa := action.Action{
 		Binary:     "go_massa",
 		Name:       "Massa-Sibe: Lista catálogos",
 		Desc:       "Lista de Catálogos (CNIS HOM)",
 		Args:       []string{"list", "-a", "2"},
-		UserInput:  nil,
+		Config:  nil,
 		CopyOutput: false,
 		FormatOutput: []string{
 			"#.id", "#.nome",
@@ -52,14 +51,14 @@ func OutputConverterListaCatalogos(choosen string) (string, []string) {
 	return "", []string{"-c", catId}
 }
 
-func NewMassaCnisFromCustomCat(args ...string) *Cmd {
+func NewMassaCnisFromCustomCat(args ...string) *action.Action {
 
-	return &Cmd{
+	return &action.Action{
 		Binary:       "go_massa",
 		Name:         "Nova Massa Cnis #8",
 		Desc:         "Obtém uma nova massa do CNIS Homologação Catálogo 8",
 		Args:         append([]string{"get", "-a", "2"}, args...),
-		UserInput:    nil,
+		Config:    nil,
 		CopyOutput:   true,
 		FilterOutput: []string{"cpfMassa cpf", "nomePfMassa nomeTitular"},
 		CallNext:     nil,
@@ -67,16 +66,16 @@ func NewMassaCnisFromCustomCat(args ...string) *Cmd {
 
 }
 
-func NewMassaCnisHomCat8() Cmd {
-	return Cmd{
+func NewMassaCnisHomCat8() action.Action {
+	return action.Action{
 		Binary:       "go_massa",
 		Name:         "Nova Massa Cnis #8",
 		Desc:         "Obtém uma nova massa do CNIS Homologação Catálogo 8",
 		Args:         []string{"get", "-c", "8", "-a", "2"},
-		UserInput:    nil,
+		Config:    nil,
 		CopyOutput:   true,
 		FilterOutput: []string{"cpfMassa cpf", "nomePfMassa nomeTitular"},
 		CallNext:     nil,
 	}
 
-}
+}*/
