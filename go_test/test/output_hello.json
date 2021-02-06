@@ -1,0 +1,9 @@
+{
+    "type": 2,
+    "variable": [
+        "mensagensInternas",
+        "mensagensExternas",
+        "situacao"
+    ],
+    "json": "{\"documentos\":[{\"conteudo\":\"7009010944\",\"nome\":\"NB\"},{\"conteudo\":\"2077252\",\"nome\":\"NR\"}],\"mensagensExternas\":[],\"mensagensInternas\":[],\"situacao\":1}"
+}

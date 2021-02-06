@@ -1,0 +1,10 @@
+{
+    "type": 1,
+    "variable": [
+        "codigoEspecieBeneficio",
+        "cpfTitular",
+        "idUnidadeOrganica",
+        "dataEntradaRequerimento"
+    ],
+    "json": "{\"codigoEspecieBeneficio\":31,\"cpfTitular\":\"21243217731\",\"dataEntradaRequerimento\":\"2019-07-01T04:00:00.000Z\",\"idUnidadeOrganica\":\"11001020\"}"
+}
