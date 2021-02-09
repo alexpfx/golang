@@ -1,12 +1,8 @@
 package actions
 
-import (
-	"github.com/alexpfx/go_action/action"
-	"github.com/alexpfx/go_action/input"
-)
+/*func NewMergeFetch() action.Action {
 
-func NewMergeFetch() action.Action {
-	input := action.InputConfig{
+	input := action.Conf{
 		Config: input.Config{
 			ArgSep: " ",
 		},
@@ -23,7 +19,7 @@ func NewMergeFetch() action.Action {
 		InputConfig: &input,
 	}
 	return c
-}
+}*/
 
 /*func MergeFetch() cmd.Action {
 	defaultFmt := []string{
