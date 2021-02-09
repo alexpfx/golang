@@ -2,7 +2,8 @@ package builtin
 
 import (
 	"github.com/alexpfx/go_action/action"
-	"github.com/alexpfx/go_action/action/builtin"
+	"github.com/alexpfx/go_action/builtin"
+	
 	"github.com/alexpfx/go_action/input"
 )
 
@@ -11,8 +12,8 @@ var (
 		{
 			Name:   "Merge Info",
 			Binary: &goMergeInfo,
-			InputConfig: &input.Config{
-				Resolver: input.ClipResolver{},
+			InputConfig: &input.ResolverConfig{
+				Resolver: builtin.ClipResolver{},
 			},
 			Next: &action.Action{
 				Binary:        builtin.Jq,
