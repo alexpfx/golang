@@ -1,12 +1,7 @@
 package actions
 
-import (
-	"github.com/alexpfx/go_action/action"
-	"github.com/alexpfx/go_action/input"
-)
-
-func NewGoMassaCustomInput() action.Action {
-	input := &action.InputConfig{
+/*func NewGoMassaCustomInput() action.Action {
+	input := &input.ResolverConfig{
 		Config: input.Config{
 			Keys:   []string{"-c"},
 			ArgSep: " ",
@@ -25,7 +20,7 @@ func NewGoMassaCustomInput() action.Action {
 	}
 
 	return c
-}
+}*/
 
 /*func MassaListaCatalogos() action.Action {
 
