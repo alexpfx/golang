@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"github.com/alexpfx/go_action/action"
+	"github.com/alexpfx/golang/go_maestro/internal/trees"
 	"github.com/urfave/cli/v2"
-
 	"log"
+	
 	"os"
 )
 
@@ -25,19 +28,48 @@ func main() {
 						Value:   "fzf",
 					},
 				},
-				Action: func(context *cli.Context) error {
-
+				Action: func(ctx *cli.Context) error {
+					if ctx.NArg() < 1 {
+						_ = cli.ShowAppHelp(ctx)
+						return nil
+					}
+					var tree action.Tree
+					tree = searchTree(ctx.Args().First())
+					selectedAction, found, err := tree.Show()
+					if err != nil {
+						return err
+					}
+					if !found {
+						return fmt.Errorf("selecione uma action")
+					}
+					
+					err = log.Output(1, fmt.Sprintf("executando action: %s", selectedAction.Name))
+					if err != nil {
+						return err
+					}
+					actRes, err := selectedAction.Run()
+					if err != nil {
+						return err
+					}
+					
+					fmt.Println(string(actRes))
+					
 					return nil
 				},
 			},
 		},
 	}
-
+	
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		_, _ = fmt.Fprintf(os.Stderr, "%s!\n", err.Error())
+		os.Exit(1)
 	}
+	
+}
 
+func searchTree(treeName string) action.Tree {
+	return trees.DtpTree
 }
 
 //func findByIdentifier(c string, cmds []action.Action) string {
