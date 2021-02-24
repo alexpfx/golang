@@ -6,3 +6,4 @@ endpointReplaces = { localhost = ["localhost", "7001"], blue = ["192.168.1.160",
 endpoint = '{{ baseUrl }}:{{ port }}/sibews/rest/requerimento/incluir/bi/inicial'
 output = ["nb"]
 
+
