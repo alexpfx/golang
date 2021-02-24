@@ -30,6 +30,7 @@ func main() {
 						Usage:   "lista as árvores disponíveis e encerra a execução do comando",
 						Aliases: []string{"l"},
 					},
+
 				},
 				Action: func(ctx *cli.Context) error {
 					if ctx.Bool("list") {
@@ -49,7 +50,6 @@ func main() {
 						fmt.Println("Não encontrada: " + arvoreBuscada)
 						return nil
 					}
-
 
 					selectedAction, found, err := vtree.Show()
 
