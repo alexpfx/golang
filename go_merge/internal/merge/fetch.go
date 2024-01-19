@@ -139,7 +139,7 @@ func ToJsonStr(results interface{}) string {
 func Fetch(token, baseUrl, project string, mrs []int, filter map[string]string) ([]MRResult, []MRErrResult, error) {
 	sort.Ints(mrs)
 
-	mrList := make([]MRResult, 0)
+		mrList := make([]MRResult, 0)
 	errMrList := make([]MRErrResult, 0)
 
 	client := createClient()

@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/alexpfx/go_common/slices"
+	"github.com/alexpfx/golang/go_merge/internal/util"
+
 	"github.com/alexpfx/golang/go_merge/internal/merge"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -53,7 +54,7 @@ func main() {
 						return err
 					}
 
-					ids = slices.IntUniqueSorted(ids)
+					ids = util.IntUniqueSorted(ids)
 					checkIdsCount(ids)
 
 					author := c.String("author")
